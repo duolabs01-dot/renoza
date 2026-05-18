@@ -13,7 +13,7 @@ import SponsorStrip from "@/components/SponsorStrip";
 const steps = [
   { icon: Camera, title: "Show us the room", body: "Upload photos of the actual space — damp patches, cracked tiles, and all. The honest picture builds an honest brief." },
   { icon: Hammer, title: "Set your ceiling", body: "Tell us what you can spend. We'll show you what that actually buys before a contractor starts reshaping your expectations." },
-  { icon: FileSearch, title: "Walk away with a plan", body: "Rand-based cost ranges, hidden cost warnings, and a WhatsApp message ready to send to contractors. Done in under a minute." },
+  { icon: FileSearch, title: "Walk away with a plan", body: "A cost range in rands, every hidden risk flagged, and a contractor brief that's ready to send. Done in under a minute." },
 ];
 
 const features = [
@@ -106,10 +106,10 @@ export default function HomePage() {
           <AnimatedSection className="mb-10 max-w-2xl">
             <p className="eyebrow mb-3">No sign-up needed</p>
             <h2 className="font-display text-4xl font-semibold text-charcoal sm:text-5xl">
-              What would your renovation cost right now?
+              What should this actually cost?
             </h2>
             <p className="mt-4 text-sm leading-7 text-charcoal-light">
-              Pick the room, pick the goals, get a Rand range. Takes 30 seconds.
+              No need to call anyone yet. Pick the room, tell us what needs doing — you&apos;ll have a number before the first contractor has even called back.
             </p>
           </AnimatedSection>
           <AnimatedSection delay={0.08}>
@@ -124,7 +124,7 @@ export default function HomePage() {
         <AnimatedSection className="mb-12 max-w-2xl">
           <p className="eyebrow mb-3">Before &amp; after</p>
           <h2 className="font-display text-4xl font-semibold leading-tight text-charcoal sm:text-5xl">
-            Know what you&apos;re aiming for before anyone starts.
+            Know where you&apos;re going before anyone starts talking scope.
           </h2>
         </AnimatedSection>
         <BeforeAfterSlider />
@@ -190,10 +190,10 @@ export default function HomePage() {
         <AnimatedSection className="container-page text-center">
           <Sparkles className="mx-auto mb-5 h-8 w-8 text-petrol-light" />
           <h2 className="font-display text-4xl font-semibold sm:text-6xl">
-            Your next renovation. Your rules.
+            Go in knowing what they know.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-white/68">
-            Thousands of SA homeowners build their plan before picking up the phone. Yours takes three minutes and it&apos;s free.
+            Thousands of SA homeowners build their plan before they pick up the phone. Yours takes three minutes and it&apos;s free.
           </p>
           <Link href="/projects/new" className="mt-9 inline-flex items-center gap-2 rounded-full bg-white px-6 py-4 text-sm font-bold text-petrol-dark">
             Build my free plan <ShieldCheck className="h-4 w-4" />

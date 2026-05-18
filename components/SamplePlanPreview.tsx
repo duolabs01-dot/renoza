@@ -21,7 +21,7 @@ export default function SamplePlanPreview() {
             This is what you walk away with.
           </h2>
           <p className="mt-5 max-w-lg text-base leading-8 text-charcoal-light">
-            A Rand range, a list of what could go wrong, and a WhatsApp message you can send to any contractor today — no sign-up, no fluff.
+            What it should cost in rands. What could bite you halfway through the job. And a message you can send to any contractor before they've had a chance to size you up.
           </p>
           <Link href="/projects/new" className="mt-8 inline-flex items-center gap-2 rounded-full bg-petrol-dark px-6 py-4 text-sm font-bold text-white shadow-xl shadow-petrol-dark/20 transition hover:-translate-y-0.5">
             Generate my plan <ArrowRight className="h-4 w-4" />
