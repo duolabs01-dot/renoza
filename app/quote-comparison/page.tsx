@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { LogoMark } from "@/components/Logo";
 
 const CLARITY_BADGE: Record<string, string> = {
   clear:   "bg-green-100 text-green-800 border-0",
@@ -130,8 +131,8 @@ export default function QuoteComparisonPage() {
     return (
       <main className="grid min-h-[calc(100vh-3.5rem)] place-items-center px-4">
         <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-[22px] bg-petrol-dark text-lg font-bold text-white shadow-xl shadow-petrol-dark/25">
-            RZ
+          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-[22px] bg-petrol-dark shadow-xl shadow-petrol-dark/25">
+            <LogoMark size={50} inverse />
           </div>
           <h1 className="font-display text-3xl font-semibold text-charcoal">Comparing quotes…</h1>
           <p className="mt-2 text-sm text-charcoal-light">Checking scope, pricing, and red flags</p>

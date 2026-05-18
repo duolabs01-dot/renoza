@@ -7,6 +7,7 @@ import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { BudgetRange, OwnershipType, ProjectPhoto, RenovationGoal, RoomType } from "@/lib/types";
 import { BUDGET_LABELS, BUDGET_OPTIONS, GOAL_LABELS, GOAL_OPTIONS, ROOM_TYPE_LABELS, ROOM_TYPES } from "@/lib/types";
+import { LogoMark } from "@/components/Logo";
 
 const roomIcons: Record<RoomType, ComponentType<{ className?: string }>> = {
   kitchen: Home,
@@ -97,8 +98,8 @@ export default function NewProjectPage() {
     return (
       <main className="grid min-h-[calc(100vh-4rem)] place-items-center px-6">
         <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-          <div className="mx-auto mb-7 grid h-20 w-20 place-items-center rounded-[26px] bg-petrol-dark text-xl font-bold text-white shadow-2xl shadow-petrol-dark/25">
-            RZ
+          <div className="mx-auto mb-7 grid h-20 w-20 place-items-center rounded-[26px] bg-petrol-dark shadow-2xl shadow-petrol-dark/25">
+            <LogoMark size={62} inverse />
           </div>
           <h1 className="font-display text-4xl font-semibold text-charcoal">Analysing your space...</h1>
           <p className="mt-3 text-sm text-charcoal-light">Checking local cost ranges, renovation risks, and contractor brief language.</p>

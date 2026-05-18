@@ -1,15 +1,12 @@
-<svg width="32" height="32" viewBox="0 0 44 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- R left spine -->
-  <line x1="5" y1="4" x2="5" y2="44" stroke="#1e5541" stroke-width="6" stroke-linecap="round"/>
-  <!-- R bowl arc -->
-  <path d="M8,4 C28,4 34,12 34,18 C34,24 26,27 16,27 L8,27" stroke="#1e5541" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Window squares 2x2 -->
-  <rect x="10" y="11" width="3.5" height="3.5" rx="0.5" fill="#9b7e5c"/>
-  <rect x="14.5" y="11" width="3.5" height="3.5" rx="0.5" fill="#9b7e5c"/>
-  <rect x="10" y="15.5" width="3.5" height="3.5" rx="0.5" fill="#9b7e5c"/>
-  <rect x="14.5" y="15.5" width="3.5" height="3.5" rx="0.5" fill="#9b7e5c"/>
-  <!-- Roofline -->
-  <path d="M10,42 L22,27 L38,44" stroke="#1e5541" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Door post -->
-  <line x1="22" y1="33" x2="22" y2="44" stroke="#1e5541" stroke-width="3.5" stroke-linecap="round"/>
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="96" height="96" rx="24" fill="#FAF8F5"/>
+  <path d="M14 72V50L43 27L82 72" stroke="#1E5541" stroke-width="7.5" stroke-linejoin="miter"/>
+  <path d="M30 72V41" stroke="#1E5541" stroke-width="7.5"/>
+  <path d="M42 27L71 53C78 59 83 67 92 72H78C71 72 66 67 60 61L40 42" fill="#1E5541"/>
+  <path d="M57 18H71C87 18 93 29 88 41C85 48 77 52 67 52C77 57 83 66 90 72H79C71 64 63 56 53 52C62 51 70 48 75 43C82 35 78 23 64 21L57 20V18Z" fill="#1E5541"/>
+  <path d="M15 50L43 27L82 72" stroke="#FAF8F5" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="39" y="50" width="7" height="7" rx="1" fill="#9B8B72"/>
+  <rect x="50" y="50" width="7" height="7" rx="1" fill="#9B8B72"/>
+  <rect x="39" y="61" width="7" height="7" rx="1" fill="#9B8B72"/>
+  <rect x="50" y="61" width="7" height="7" rx="1" fill="#9B8B72"/>
 </svg>

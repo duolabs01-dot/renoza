@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LogoMark } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 
 const links = [
   { href: "/projects", label: "My Projects" },
@@ -23,14 +23,8 @@ export default function Nav() {
     <header className="sticky top-0 z-50 border-b border-charcoal/10 bg-canvas/90 backdrop-blur-2xl">
       <div className="container-page flex h-14 items-center justify-between sm:h-16">
 
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-white shadow-md shadow-petrol-dark/15 sm:h-9 sm:w-9">
-            <LogoMark size={26} />
-          </span>
-          <span className="font-display text-lg font-semibold text-charcoal sm:text-xl">
-            Renoza
-          </span>
+        <Link href="/" aria-label="Renoza home">
+          <Logo markSize={42} />
         </Link>
 
         {/* Desktop pill nav — hidden on mobile */}
@@ -77,11 +71,8 @@ export default function Nav() {
             <SheetContent side="right" className="w-[280px] bg-canvas p-0">
               <div className="flex h-full flex-col">
                 {/* Sheet header */}
-                <div className="flex items-center gap-2.5 border-b border-charcoal/10 px-5 py-4">
-                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-white shadow-md shadow-petrol-dark/15">
-                    <LogoMark size={26} />
-                  </span>
-                  <span className="font-display text-lg font-semibold text-charcoal">Renoza</span>
+                <div className="border-b border-charcoal/10 px-5 py-4">
+                  <Logo markSize={42} />
                 </div>
 
                 {/* Nav links */}
