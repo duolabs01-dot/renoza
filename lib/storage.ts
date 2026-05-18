@@ -61,19 +61,19 @@ export async function saveProject(input: ProjectInput, plan: RenovationPlan): Pr
   // Always write to localStorage first (instant, offline-safe)
   lsWrite(stored);
 
-  // Sync to Supabase in background
+  // Sync to Supabase in background — fire-and-forget, never blocks localStorage
   if (isSupabaseEnabled && supabase) {
     const sessionId = getSessionId();
-    await supabase.from("projects").upsert({
-      id,
-      session_id: sessionId,
-      input,
-      plan,
-      created_at: now,
-      updated_at: now,
-    }).then(({ error }) => {
-      if (error) console.warn("[storage] Supabase save failed:", error.message);
-    });
+    void (async () => {
+      try {
+        const { error } = await supabase.from("projects").upsert({
+          id, session_id: sessionId, input, plan, created_at: now, updated_at: now,
+        });
+        if (error) console.warn("[storage] Supabase save failed:", error.message);
+      } catch (err) {
+        console.warn("[storage] Supabase upsert threw:", err);
+      }
+    })();
   }
 
   return id;
@@ -93,12 +93,16 @@ export async function updateProject(
     lsWriteAll(all);
   }
 
-  // Sync to Supabase
+  // Sync to Supabase in background
   if (isSupabaseEnabled && supabase) {
-    await supabase.from("projects").update({ ...updates, updated_at }).eq("id", id)
-      .then(({ error }) => {
+    void (async () => {
+      try {
+        const { error } = await supabase.from("projects").update({ ...updates, updated_at }).eq("id", id);
         if (error) console.warn("[storage] Supabase update failed:", error.message);
-      });
+      } catch (err) {
+        console.warn("[storage] Supabase update threw:", err);
+      }
+    })();
   }
 }
 
@@ -106,10 +110,14 @@ export async function deleteProject(id: string): Promise<void> {
   lsWriteAll(lsReadAll().filter((p) => p.id !== id));
 
   if (isSupabaseEnabled && supabase) {
-    await supabase.from("projects").delete().eq("id", id)
-      .then(({ error }) => {
+    void (async () => {
+      try {
+        const { error } = await supabase.from("projects").delete().eq("id", id);
         if (error) console.warn("[storage] Supabase delete failed:", error.message);
-      });
+      } catch (err) {
+        console.warn("[storage] Supabase delete threw:", err);
+      }
+    })();
   }
 }
 

@@ -197,13 +197,17 @@ export default function DepositShield({ plan, input }: Props) {
         Print payment schedule
       </button>
 
-      {/* Print styles */}
+      {/* Print styles — hide entire page, reveal only this section */}
       <style>{`
         @media print {
-          header, footer, nav, .print\\:hidden { display: none !important; }
+          body * { visibility: hidden; }
+          .payment-schedule-print,
+          .payment-schedule-print * { visibility: visible; }
           .payment-schedule-print {
-            display: block !important;
-            break-inside: avoid;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             padding: 32px;
             background: white;
           }

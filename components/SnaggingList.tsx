@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Circle } from "lucide-react";
+import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle2, Circle, Printer } from "lucide-react";
 import { generateSnaggingList, getSnaggingGroupLabel } from "@/lib/snag";
 import type { RenovationGoal, RoomType } from "@/lib/types";
 
@@ -150,16 +150,31 @@ export default function SnaggingList({ goals, roomType, projectId }: Props) {
         ))}
       </div>
 
-      {/* Print styles scoped to this component */}
+      {/* Print button */}
+      <button
+        onClick={() => window.print()}
+        className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-charcoal/10 bg-white px-4 py-2.5 text-sm font-semibold text-charcoal hover:bg-canvas print:hidden"
+      >
+        <Printer className="h-4 w-4" />
+        Print checklist
+      </button>
+
+      {/* Print styles — hide entire page, reveal only this section */}
       <style>{`
         @media print {
-          header, footer, nav, .print\\:hidden { display: none !important; }
+          body * { visibility: hidden; }
+          .snag-print-target,
+          .snag-print-target * { visibility: visible; }
           .snag-print-target {
-            display: block !important;
-            break-inside: avoid;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             padding: 32px;
             background: white;
           }
+          /* Expand all tips when printing */
+          .snag-print-target p { display: block !important; visibility: visible !important; }
         }
       `}</style>
     </div>
