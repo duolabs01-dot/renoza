@@ -546,6 +546,45 @@ function buildTimeline(
 
 // ─── Fallback narrative (no AI required) ─────────────────────────────────────
 
+function buildRecommendedApproach(input: ProjectInput): string {
+  const goals = new Set(input.goals ?? []);
+  const isRental = input.ownership_type === "rent";
+
+  // Full makeover — needs sequencing advice
+  if (goals.has("full-makeover")) {
+    return "Sequence matters more than speed on a full strip-out. Get any damp, structural or rotting work sorted before anyone lays a tile or opens a paint tin. Then run wet works (plumbing, tiling, waterproofing) and electrical rough-in together, finishes last. Insist on a single foreman and a weekly site walkthrough — that's how scope creep gets caught early.";
+  }
+
+  // Damp present — damp leads everything else
+  if (goals.has("damp-repair")) {
+    return "Find the source before you spend a cent on cosmetics. Rising damp, leaks, and condensation all need different fixes — guessing means it comes back in six months. Once you've diagnosed it, get the waterproofing done and let everything dry properly before any plaster, tile or paint goes up.";
+  }
+
+  // Plumbing or electrical — wet/wired works first
+  if (goals.has("plumbing") || goals.has("electrical")) {
+    const trades = [goals.has("plumbing") && "plumbing", goals.has("electrical") && "electrical"].filter(Boolean).join(" and ");
+    return `Get the ${trades} done before any finishes. Once walls are closed up and tiles are laid, every change costs three times more. Pressure-test pipework and get the CoC signed off ${goals.has("electrical") ? "" : "(if any electrical is involved) "}before plastering or tiling starts.`;
+  }
+
+  // Tiling specifically — substrate first
+  if (goals.has("tiling")) {
+    return "Tap the existing tiles before anyone quotes for re-tiling — hollow ones mean the bed needs replacing, not just the surface. Sort waterproofing in wet areas before the first tile goes down, not after. Cheap grouting is where amateur jobs fall apart within a year.";
+  }
+
+  // Cupboards — lead times
+  if (goals.has("cupboards")) {
+    return "Order the cupboards before you book demolition. Custom joinery is 3–6 weeks from sign-off — if you strip the kitchen first, you'll be eating off the braai for over a month. Confirm the supplier's measurement visit happens before any tiling, so the dimensions are locked in.";
+  }
+
+  // Sale/rental prep
+  if (goals.has("prepare-rental-sale")) {
+    return "Fix what would fail an inspection first — damp patches, broken cupboard runners, dripping taps, anything safety-related. Cosmetic work (paint, regrouting, polishing) goes last and shouldn't take more than a week if the underlying place is sound. Don't over-capitalise on a sale prep — buyers notice fresh paint hiding problems.";
+  }
+
+  // Paint / lighting / flooring only — cosmetic-only flow
+  return `${isRental ? "Confirm scope changes with your landlord in writing before you start — even cosmetic work can cause deposit disputes later. " : ""}Cosmetic-only jobs are quick if the room is sound, so spend the first day checking — walk the room, look for damp stains, cracks, soft floor patches. Better to push the start date a week than discover a problem mid-paint.`;
+}
+
 export function buildFallbackNarrative(
   input: ProjectInput,
   calculated: CalculatedPlan,
@@ -557,7 +596,7 @@ export function buildFallbackNarrative(
 
   const room_summary = `This plan covers a ${roomLabel.toLowerCase()} renovation in ${input.location ?? "South Africa"}, ${sqmStr} in size. The scope includes ${goalsLabel || "general renovation work"} with all estimates in South African Rand.`;
 
-  const recommended_approach = `Start with any damp, mould, or structural issues before any cosmetic work — these always grow if ignored. Once the structure is sound, prioritise work that is disruptive first (tiling, electrical, plumbing) before finishes like paint and flooring. Use the questions list in this plan before committing to any contractor.`;
+  const recommended_approach = buildRecommendedApproach(input);
 
   const budgetMax  = BUDGET_RANGE_MAX[input.budget_range ?? "15k-50k"];
   const overBudget = calculated.cost_high > budgetMax;

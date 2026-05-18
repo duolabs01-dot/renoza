@@ -506,14 +506,14 @@ export default function ProjectResultPage() {
           {/* Financing banner */}
           <AnimatedSection className="no-print">
             <div className="rounded-2xl border border-petrol-light/30 border-l-4 border-l-petrol-dark bg-white p-5">
-              <p className="eyebrow mb-2">Sponsored</p>
-              <p className="font-semibold text-charcoal">Financing available</p>
+              <p className="eyebrow mb-2">Sponsored placeholder</p>
+              <p className="font-semibold text-charcoal">Need to finance the job?</p>
               <p className="mt-1 text-sm leading-6 text-charcoal-light">
-                Standard Bank Home Improvement Loan — from R5,000 to R300,000. Apply online in 5 minutes with instant pre-approval.
+                Most SA banks offer home improvement loans from R5,000 to R300,000. Get pre-approval before you sign anything — knowing your ceiling changes how you negotiate.
               </p>
-              <button className="mt-3 rounded-full border border-petrol-light/40 bg-petrol-dark/6 px-4 py-2 text-sm font-semibold text-petrol-dark">
-                Learn more →
-              </button>
+              <p className="mt-3 text-xs italic text-charcoal-light/70">
+                Real lending partners coming soon. Until then: talk to your own bank or a mortgage broker.
+              </p>
             </div>
           </AnimatedSection>
 
