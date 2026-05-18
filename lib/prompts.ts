@@ -27,7 +27,7 @@ REQUIREMENTS:
 - budget_max should be the upper end of the budget range in numbers (e.g. 50000 for "15k-50k").
 - timeline_phases must sum to approximately 100% in pct values.
 - whatsapp_brief must be a ready-to-send WhatsApp message to a contractor — use *bold* for section headers, include all key project details, and ask for itemised quotes and CoC for electrical.
-- risks_and_hidden_costs must be SPECIFIC to this room type (${roomLabel}) and the selected goals.
+- risks_and_hidden_costs: SPECIFIC to this room (${roomLabel}) and goals. Voice: a South African builder mate warning you over a coffee — direct, no jargon, name specific Rand amounts or % contingencies where you can, and reference real SA things (SANS, NHBRC, body corporate, pre-1990 asbestos, galvanised pipes, etc.) where relevant. Each item should sound like a warning, not a textbook.
 - questions_for_contractor must be SPECIFIC to the selected goals and SA compliance requirements.
 - Be honest about what the budget can and cannot achieve.${input.ownership_type === "rent" ? "\n- Since this is a rental, flag that structural changes may require landlord permission and note this in the WhatsApp brief." : ""}`;
 

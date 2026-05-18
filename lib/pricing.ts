@@ -266,16 +266,16 @@ const GOAL_LABOUR: Partial<Record<RenovationGoal, string[]>> = {
 // ─── Risks per goal ───────────────────────────────────────────────────────────
 
 const GOAL_RISKS: Partial<Record<RenovationGoal, string[]>> = {
-  paint:          ["Moisture behind walls may cause paint to blister — confirm walls are dry before painting."],
-  flooring:       ["Uneven or damaged subfloor will require levelling compound at extra cost.", "Existing flooring may contain asbestos in homes pre-1990 — test before removal."],
-  tiling:         ["Hollow tiles indicate a compromised substrate — re-tiling over hollow beds will fail.", "Waterproofing failures behind wet-area tiles are expensive to fix after grouting."],
-  lighting:       ["Non-compliant wiring discovered during fitting changes may require a full DB inspection."],
-  cupboards:      ["Custom joinery lead times can be 3–6 weeks — confirm before starting demolition."],
-  plumbing:       ["Hidden pipe corrosion often only visible once walls are opened — allow contingency.", "Blocked or shared waste stacks may require plumber to liaise with body corporate."],
-  electrical:     ["Old or non-compliant wiring may require full rewire to obtain CoC.", "Asbestos-backed ceiling boards require specialist removal before new lighting."],
-  "damp-repair":  ["Rising damp cannot be permanently fixed without addressing the source — diagnose first.", "Damp investigation can reveal structural issues (cracked foundations, failed flashings)."],
-  "full-makeover":["Full strip-outs often reveal hidden plumbing and electrical defects — budget for surprises.", "Extended timelines are common; agree on a weekly site visit schedule with your contractor."],
-  "prepare-rental-sale": ["Cosmetic improvements will not mask structural or damp issues — fix root causes first."],
+  paint:          ["Painting over damp doesn't fix damp — it hides it for two months. Look for blistered old paint and salt deposits on walls before they start."],
+  flooring:       ["Uneven subfloor adds R150–R300/m² in levelling compound. Most quotes leave it out and bill you for it later.", "Homes built pre-1990 may have asbestos-backed vinyl underneath. Test before anyone pulls it up — proper testing runs around R600."],
+  tiling:         ["Tap the existing tiles. A hollow sound means the bed underneath has failed — re-tiling over it will pop within a year.", "Waterproofing missed behind a shower is the most expensive thing to fix later. Get it in writing that it's included."],
+  lighting:       ["If the existing wiring doesn't meet SANS 10142, the electrician can't sign a CoC for your new fittings without bringing it up to spec — that's a full DB inspection charge on top."],
+  cupboards:      ["Custom cupboards take 3–6 weeks from order to install. If a contractor says 'next week', they're either lying or supplying off-the-shelf — ask which."],
+  plumbing:       ["Old galvanised pipes in pre-1990 homes are usually corroded. They only find out once the wall is open — budget at least 15% contingency.", "Sectional title? Body corporate may need to approve waste-stack work before anyone touches it. Get the letter in advance."],
+  electrical:     ["Pre-2003 wiring often doesn't meet current SANS 10142. The electrician can't issue a CoC without bringing it up to standard — that's a separate charge.", "Asbestos-backed ceiling boards (Nutec) in older homes need specialist removal. Don't let the sparky chance it."],
+  "damp-repair":  ["Rising damp comes back if you only treat the wall — find the source first. Usually a broken DPC, blocked downpipe, or rainwater pooling outside.", "Pulling off damp plaster sometimes reveals cracked foundations or failed waterproofing. Budget 25% contingency."],
+  "full-makeover":["Strip-outs always uncover something — old wiring, rotten window frames, leaking pipes. The contingency line in your quote isn't optional.", "Three-week jobs become six-week jobs. Agree a weekly site visit with the foreman from day one — in writing."],
+  "prepare-rental-sale": ["A coat of paint won't hide damp from a buyer or rental inspector. Fix the cause, not the symptom — you'll lose more on the deal than the repair would have cost."],
 };
 
 // ─── Questions per goal ───────────────────────────────────────────────────────
@@ -337,9 +337,9 @@ const BASE_QUESTIONS = [
 ];
 
 const BASE_RISKS = [
-  "Material price fluctuations — lock in quotes within 14 days of submission.",
-  "Unregistered contractors — always verify NHBRC or SAIAT registration before signing.",
-  "Vague payment schedules — insist on milestone-based payments, never pay more than 30% upfront.",
+  "Quotes go stale fast. Most are good for 14 days — after that, material prices may have moved and the contractor will come back asking for more.",
+  "Unregistered contractors. If they can't show you an NHBRC or PIRB number, walk. Doesn't matter how cheap they are.",
+  "Big upfront deposits. Anything over 30% is a red flag — proper builders work to milestones, not lump sums.",
 ];
 
 // ─── Default room sqm for BallparkEstimator ───────────────────────────────────
