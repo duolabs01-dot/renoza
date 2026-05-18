@@ -6,7 +6,7 @@ export function buildPlanPrompt(input: ProjectInput): string {
   const roomLabel = ROOM_TYPE_LABELS[input.room_type] || input.room_type;
   const budgetLabel = BUDGET_LABELS[input.budget_range] || input.budget_range;
 
-  return `You are a senior South African renovation consultant. Generate a detailed, realistic renovation plan for the following project.
+  let prompt = `You are a senior South African renovation consultant. Generate a detailed, realistic renovation plan for the following project.
 
 PROJECT DETAILS:
 - Project name: ${input.name}
@@ -28,10 +28,63 @@ REQUIREMENTS:
 - whatsapp_brief must be a ready-to-send WhatsApp message to a contractor — use *bold* for section headers, include all key project details, and ask for itemised quotes and CoC for electrical.
 - risks_and_hidden_costs must be SPECIFIC to this room type (${roomLabel}) and the selected goals.
 - questions_for_contractor must be SPECIFIC to the selected goals and SA compliance requirements.
-- Be honest about what the budget can and cannot achieve.
-${input.ownership_type === "rent" ? "- Since this is a rental, flag that structural changes may require landlord permission and note this in the WhatsApp brief." : ""}
+- Be honest about what the budget can and cannot achieve.${input.ownership_type === "rent" ? "\n- Since this is a rental, flag that structural changes may require landlord permission and note this in the WhatsApp brief." : ""}`;
 
-Generate the renovation plan now.`;
+  if (input.floor_plan?.analysis) {
+    const a = input.floor_plan.analysis;
+    prompt += `
+
+FLOOR PLAN CONTEXT (from uploaded drawing — use as soft context only, do not invent structural certainty):
+- Detected dimensions: ${a.estimated_dimensions}
+- Visible features: ${a.visible_features.join(", ")}
+- Demolition zones noted: ${a.demolition_zones.join(", ") || "none"}
+- Renovation scope visible: ${a.renovation_scope_detected.join(", ") || "none"}
+- Structural concerns: ${a.structural_concerns.join(", ") || "none flagged"}
+- AI notes: ${a.ai_notes}
+Include a floor_plan_notes string summarising what the drawing revealed and how it influenced the plan. Keep it under 3 sentences.`;
+  } else {
+    prompt += `\nDo NOT include a floor_plan_notes field.`;
+  }
+
+  if (input.include_feng_shui) {
+    const dir = input.compass_direction && input.compass_direction !== "unknown"
+      ? input.compass_direction
+      : "not provided — use general principles";
+    prompt += `
+
+SPATIAL HARMONY / FENG SHUI:
+Include a feng_shui object with practical spatial harmony guidance framed around feng shui principles.
+- bagua_area: which of the 9 bagua areas this room most likely corresponds to for this room type
+- dominant_element: Wood, Fire, Earth, Metal, or Water — most fitting for this ${roomLabel}
+- energy_assessment: How the renovation goals affect chi/energy flow. Be practical, not mystical.
+- colour_recommendations: 3–5 colours that support this room's energy. Include hex codes (real, accurate hex values).
+- placement_tips: 3–6 practical layout and flow tips for this room type
+- things_to_avoid: 2–4 things to avoid in layout, materials, or renovation choices
+- favourable_directions: which compass directions are best for the main function (door, desk, bed, stove etc.)
+- compass_notes: Specific guidance based on compass direction "${dir}"
+Keep the tone warm and practical — helpful for believers and non-believers alike.`;
+  } else {
+    prompt += `\nDo NOT include a feng_shui field.`;
+  }
+
+  prompt += `\n\nGenerate the renovation plan now.`;
+  return prompt;
+}
+
+export function buildFloorPlanPrompt(input: Partial<ProjectInput>): string {
+  return `You are a South African renovation consultant reviewing an uploaded floor plan, sketch, or room photo.
+Room type: ${input.room_type ?? "unknown"}. Location: ${input.location ?? "South Africa"}.
+
+Analyse the image and extract:
+- room_type_detected: What room type is visible
+- estimated_dimensions: Estimate dimensions if scale markings or furniture give clues. Say "unclear" if not determinable.
+- visible_features: List visible features (windows, doors, plumbing fixtures, built-in cupboards, etc.)
+- demolition_zones: Any areas marked for demolition, removal, or that look structurally concerning
+- renovation_scope_detected: Any renovation scope you can read from the drawing (markings, annotations, etc.)
+- structural_concerns: ONLY flag what is visually clear. Do not invent concerns. Err on the side of caution — say "none visible" rather than guessing.
+- ai_notes: 1–2 sentences on what the drawing reveals and any important caveats
+
+Be honest about uncertainty. If this is a photo rather than a drawing, note that.`;
 }
 
 export function buildReviewPrompt(quoteText: string): string {

@@ -21,18 +21,22 @@ import WhatsAppBubble from "@/components/WhatsAppBubble";
 import SponsoredCard from "@/components/SponsoredCard";
 import ContractorTile from "@/components/ContractorTile";
 import CopyButton from "@/components/CopyButton";
+import ScopeDiagram from "@/components/ScopeDiagram";
+import FengShuiCard from "@/components/FengShuiCard";
 import { Badge } from "@/components/ui/badge";
 
 const SECTIONS = [
-  { id: "summary", label: "Summary" },
-  { id: "budget", label: "Budget" },
-  { id: "whatsapp", label: "WhatsApp Brief" },
-  { id: "work-items", label: "Work Items" },
-  { id: "materials", label: "Materials" },
-  { id: "labour", label: "Labour" },
-  { id: "timeline", label: "Timeline" },
-  { id: "risks", label: "Risks" },
-  { id: "questions", label: "Questions" },
+  { id: "summary",         label: "Summary" },
+  { id: "budget",          label: "Budget" },
+  { id: "scope-sketch",    label: "Scope" },
+  { id: "whatsapp",        label: "WhatsApp" },
+  { id: "work-items",      label: "Work Items" },
+  { id: "materials",       label: "Materials" },
+  { id: "labour",          label: "Labour" },
+  { id: "timeline",        label: "Timeline" },
+  { id: "risks",           label: "Risks" },
+  { id: "questions",       label: "Questions" },
+  { id: "spatial-harmony", label: "Harmony" }, // only shown when plan.feng_shui exists
 ];
 
 export default function ProjectResultPage() {
@@ -200,19 +204,21 @@ export default function ProjectResultPage() {
         {/* Mobile horizontal section nav */}
         <div className="no-print -mx-0 overflow-x-auto border-t border-charcoal/10 lg:hidden">
           <div className="flex gap-1 px-4 py-2">
-            {SECTIONS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => scrollTo(s.id)}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  activeSection === s.id
-                    ? "bg-petrol-dark text-white"
-                    : "text-charcoal-light hover:bg-canvas-dark hover:text-charcoal"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
+            {SECTIONS
+              .filter((s) => s.id !== "spatial-harmony" || !!plan.feng_shui)
+              .map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => scrollTo(s.id)}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    activeSection === s.id
+                      ? "bg-petrol-dark text-white"
+                      : "text-charcoal-light hover:bg-canvas-dark hover:text-charcoal"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
           </div>
         </div>
       </div>
@@ -231,24 +237,26 @@ export default function ProjectResultPage() {
         {/* Desktop sidebar */}
         <aside className="no-print hidden lg:sticky lg:top-24 lg:block lg:self-start">
           <div className="flex flex-col gap-0.5">
-            {SECTIONS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => scrollTo(s.id)}
-                className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
-                  activeSection === s.id
-                    ? "bg-petrol-dark/8 font-semibold text-petrol-dark"
-                    : "font-medium text-charcoal-light hover:text-charcoal"
-                }`}
-              >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                    activeSection === s.id ? "bg-petrol-dark" : "bg-charcoal/20"
+            {SECTIONS
+              .filter((s) => s.id !== "spatial-harmony" || !!plan.feng_shui)
+              .map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => scrollTo(s.id)}
+                  className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                    activeSection === s.id
+                      ? "bg-petrol-dark/8 font-semibold text-petrol-dark"
+                      : "font-medium text-charcoal-light hover:text-charcoal"
                   }`}
-                />
-                {s.label}
-              </button>
-            ))}
+                >
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                      activeSection === s.id ? "bg-petrol-dark" : "bg-charcoal/20"
+                    }`}
+                  />
+                  {s.label}
+                </button>
+              ))}
           </div>
         </aside>
 
@@ -278,6 +286,23 @@ export default function ProjectResultPage() {
                   </div>
                 </div>
               </div>
+            </SectionCard>
+          </section>
+
+          <section id="scope-sketch" ref={(el) => { sectionRefs.current["scope-sketch"] = el; }}>
+            <SectionCard title="Scope Sketch" kicker="Sketch only — not a structural drawing">
+              <ScopeDiagram
+                input={input}
+                plan={plan}
+                showFengShui={!!input.include_feng_shui}
+                compassDirection={input.compass_direction}
+              />
+              {plan.floor_plan_notes && (
+                <p className="mt-4 rounded-2xl bg-canvas px-4 py-3 text-sm leading-6 text-charcoal-light">
+                  <span className="font-semibold text-charcoal">AI floor plan notes: </span>
+                  {plan.floor_plan_notes}
+                </p>
+              )}
             </SectionCard>
           </section>
 
@@ -400,6 +425,15 @@ export default function ProjectResultPage() {
               </ol>
             </SectionCard>
           </section>
+
+          {/* Spatial Harmony — conditional on feng_shui data */}
+          {plan.feng_shui && (
+            <section id="spatial-harmony" ref={(el) => { sectionRefs.current["spatial-harmony"] = el; }} className="print-avoid-break">
+              <SectionCard title="Spatial Harmony Guidance" kicker="Optional — traditional feng shui principles">
+                <FengShuiCard analysis={plan.feng_shui} />
+              </SectionCard>
+            </section>
+          )}
 
           {/* Bottom CTAs */}
           <div className="no-print flex flex-wrap gap-3 pt-2">

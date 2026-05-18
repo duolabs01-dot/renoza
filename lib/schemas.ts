@@ -14,6 +14,33 @@ export const timelinePhaseSchema = z.object({
   pct: z.number(),
 });
 
+export const fengShuiColourSchema = z.object({
+  colour: z.string(),
+  hex: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  reason: z.string(),
+});
+
+export const fengShuiAnalysisSchema = z.object({
+  bagua_area: z.string(),
+  dominant_element: z.string(),
+  energy_assessment: z.string(),
+  colour_recommendations: z.array(fengShuiColourSchema).min(3).max(6),
+  placement_tips: z.array(z.string()).min(3).max(8),
+  things_to_avoid: z.array(z.string()).min(2).max(6),
+  favourable_directions: z.array(z.string()),
+  compass_notes: z.string(),
+});
+
+export const floorPlanAnalysisSchema = z.object({
+  room_type_detected: z.string(),
+  estimated_dimensions: z.string(),
+  visible_features: z.array(z.string()),
+  demolition_zones: z.array(z.string()),
+  renovation_scope_detected: z.array(z.string()),
+  structural_concerns: z.array(z.string()),
+  ai_notes: z.string(),
+});
+
 export const renovationPlanSchema = z.object({
   room_summary: z.string(),
   recommended_approach: z.string(),
@@ -29,6 +56,8 @@ export const renovationPlanSchema = z.object({
   questions_for_contractor: z.array(z.string()).min(6).max(12),
   whatsapp_brief: z.string(),
   timeline_phases: z.array(timelinePhaseSchema).min(3).max(6),
+  feng_shui: fengShuiAnalysisSchema.optional(),
+  floor_plan_notes: z.string().optional(),
 });
 
 export const quoteReviewSchema = z.object({

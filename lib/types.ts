@@ -21,6 +21,46 @@ export interface ProjectInput {
   budget_range: BudgetRange;
   goals: RenovationGoal[];
   photos?: ProjectPhoto[];
+  include_feng_shui?: boolean;
+  compass_direction?: CompassDirection;
+  floor_plan?: FloorPlanUpload;
+}
+
+export type CompassDirection =
+  | "north" | "northeast" | "east" | "southeast"
+  | "south" | "southwest" | "west" | "northwest"
+  | "unknown";
+
+export interface FloorPlanAnalysis {
+  room_type_detected: string;
+  estimated_dimensions: string;
+  visible_features: string[];
+  demolition_zones: string[];
+  renovation_scope_detected: string[];
+  structural_concerns: string[];
+  ai_notes: string;
+}
+
+export interface FloorPlanUpload {
+  name: string;
+  analysis?: FloorPlanAnalysis;
+}
+
+export interface FengShuiColour {
+  colour: string;
+  hex: string;
+  reason: string;
+}
+
+export interface FengShuiAnalysis {
+  bagua_area: string;
+  dominant_element: string;
+  energy_assessment: string;
+  colour_recommendations: FengShuiColour[];
+  placement_tips: string[];
+  things_to_avoid: string[];
+  favourable_directions: string[];
+  compass_notes: string;
 }
 
 export interface StoredProject {
@@ -73,6 +113,8 @@ export interface RenovationPlan {
   questions_for_contractor: string[];
   whatsapp_brief: string;
   timeline_phases: TimelinePhase[];
+  feng_shui?: FengShuiAnalysis;
+  floor_plan_notes?: string;
 }
 
 export interface QuoteReview {

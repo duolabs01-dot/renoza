@@ -1,12 +1,21 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Check, Home, ImagePlus, Lamp, Paintbrush, Sofa, Upload, X } from "lucide-react";
+import {
+  ArrowLeft, ArrowRight, Bath, BedDouble, Check, Home, ImagePlus, Lamp,
+  Paintbrush, Sofa, Upload, X,
+} from "lucide-react";
 import type { ComponentType } from "react";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { BudgetRange, OwnershipType, ProjectPhoto, RenovationGoal, RoomType } from "@/lib/types";
-import { BUDGET_LABELS, BUDGET_OPTIONS, GOAL_LABELS, GOAL_OPTIONS, ROOM_TYPE_LABELS, ROOM_TYPES } from "@/lib/types";
+import type {
+  BudgetRange, CompassDirection, FloorPlanUpload, OwnershipType,
+  ProjectPhoto, RenovationGoal, RoomType,
+} from "@/lib/types";
+import {
+  BUDGET_LABELS, BUDGET_OPTIONS, GOAL_LABELS, GOAL_OPTIONS,
+  ROOM_TYPE_LABELS, ROOM_TYPES,
+} from "@/lib/types";
 import { saveProject, updateProject, getProject } from "@/lib/storage";
 import { LogoMark } from "@/components/Logo";
 
@@ -34,7 +43,12 @@ const goalIcons: Partial<Record<RenovationGoal, ComponentType<{ className?: stri
   "prepare-rental-sale": Home,
 };
 
-const steps = ["Project", "Room", "Goals", "Photos"];
+const COMPASS_DIRECTIONS: CompassDirection[] = [
+  "north", "northeast", "east", "southeast",
+  "south", "southwest", "west", "northwest",
+];
+
+const steps = ["Project", "Room", "Goals", "Scope Sketch", "Photos"];
 
 const LOADING_MESSAGES = [
   "Analysing room type and goals…",
@@ -56,12 +70,15 @@ function NewProjectForm() {
   const searchParams = useSearchParams();
   const reduceMotion = useReducedMotion();
   const fileRef = useRef<HTMLInputElement>(null);
+  const floorPlanRef = useRef<HTMLInputElement>(null);
+
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState(0);
   const [editId, setEditId] = useState<string | null>(null);
 
+  // Project fields
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
   const [roomType, setRoomType] = useState<RoomType>("kitchen");
@@ -70,6 +87,12 @@ function NewProjectForm() {
   const [budget, setBudget] = useState<BudgetRange>("15k-50k");
   const [goals, setGoals] = useState<RenovationGoal[]>(["paint", "flooring"]);
   const [photos, setPhotos] = useState<ProjectPhoto[]>([]);
+
+  // New fields
+  const [includeFengShui, setIncludeFengShui] = useState(false);
+  const [compassDirection, setCompassDirection] = useState<CompassDirection | "">("");
+  const [floorPlan, setFloorPlan] = useState<FloorPlanUpload | null>(null);
+  const [analyzingFloorPlan, setAnalyzingFloorPlan] = useState(false);
 
   // Pre-fill from edit param
   useEffect(() => {
@@ -87,6 +110,9 @@ function NewProjectForm() {
     setBudget(input.budget_range);
     setGoals(input.goals);
     setPhotos(input.photos ?? []);
+    if (input.include_feng_shui) setIncludeFengShui(true);
+    if (input.compass_direction) setCompassDirection(input.compass_direction);
+    if (input.floor_plan) setFloorPlan({ name: input.floor_plan.name, analysis: input.floor_plan.analysis });
   }, [searchParams]);
 
   // Cycle loading messages
@@ -108,10 +134,10 @@ function NewProjectForm() {
   }, [goals.length, location, name, roomSize]);
 
   const canContinue =
-    step === 0 ? name.trim() && location.trim()
-    : step === 1 ? roomSize.trim()
+    step === 0 ? !!(name.trim() && location.trim())
+    : step === 1 ? !!roomSize.trim()
     : step === 2 ? goals.length > 0
-    : true;
+    : true; // Scope Sketch (step 3) and Photos (step 4) are optional
 
   const go = (next: number) => {
     setDirection(next > step ? 1 : -1);
@@ -143,6 +169,46 @@ function NewProjectForm() {
     setPhotos((curr) => curr.filter((p) => p.id !== id));
   };
 
+  const handleFloorPlanUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      alert("Please upload a JPG, PNG, or WebP image.");
+      return;
+    }
+
+    setAnalyzingFloorPlan(true);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target?.result as string;
+      try {
+        const res = await fetch("/api/analyze-floor-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageBase64: base64,
+            mimeType: file.type,
+            input: { room_type: roomType, location, room_size: roomSize },
+          }),
+        });
+        const analysis = await res.json();
+        setFloorPlan({ name: file.name, analysis });
+      } catch {
+        setFloorPlan({ name: file.name });
+      } finally {
+        setAnalyzingFloorPlan(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeFloorPlan = () => {
+    setFloorPlan(null);
+    if (floorPlanRef.current) floorPlanRef.current.value = "";
+  };
+
   const submit = async () => {
     setSubmitting(true);
     setLoadingMsg(0);
@@ -156,6 +222,9 @@ function NewProjectForm() {
       budget_range: budget,
       goals,
       photos,
+      include_feng_shui: includeFengShui || undefined,
+      compass_direction: (includeFengShui && compassDirection) ? compassDirection as CompassDirection : undefined,
+      floor_plan: floorPlan ? { name: floorPlan.name, analysis: floorPlan.analysis } : undefined,
     };
 
     try {
@@ -174,7 +243,6 @@ function NewProjectForm() {
         router.push(`/projects/${id}`);
       }
     } catch {
-      // Fallback: use mock AI
       const { generateRenovationPlan } = await import("@/lib/mock-ai");
       const plan = generateRenovationPlan(input);
       if (editId) {
@@ -246,23 +314,23 @@ function NewProjectForm() {
         <section className="premium-card overflow-hidden rounded-[36px]">
           {/* Step indicators */}
           <div className="border-b border-charcoal/10 bg-white px-5 py-4 sm:px-8">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-2">
               {steps.map((label, index) => (
                 <button
                   key={label}
                   type="button"
                   onClick={() => go(index)}
-                  className="flex min-w-0 items-center gap-2"
+                  className="flex min-w-0 items-center gap-1.5"
                 >
                   <span
-                    className={`grid h-8 w-8 place-items-center rounded-full text-xs font-bold ${
+                    className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
                       index <= step ? "bg-petrol-dark text-white" : "bg-canvas-dark text-charcoal-light"
                     }`}
                   >
-                    {index < step ? <Check className="h-4 w-4" /> : index + 1}
+                    {index < step ? <Check className="h-3.5 w-3.5" /> : index + 1}
                   </span>
                   <span
-                    className={`hidden text-xs font-bold uppercase tracking-[0.12em] sm:block ${
+                    className={`hidden text-xs font-bold uppercase tracking-[0.10em] sm:block ${
                       index === step ? "text-petrol-dark" : "text-charcoal-light"
                     }`}
                   >
@@ -284,6 +352,8 @@ function NewProjectForm() {
                 exit={reduceMotion ? undefined : { opacity: 0, x: direction * -28 }}
                 transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               >
+
+                {/* ── Step 0: Project ── */}
                 {step === 0 && (
                   <div>
                     <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Project details</h2>
@@ -311,6 +381,7 @@ function NewProjectForm() {
                   </div>
                 )}
 
+                {/* ── Step 1: Room ── */}
                 {step === 1 && (
                   <div>
                     <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Room and budget</h2>
@@ -380,10 +451,73 @@ function NewProjectForm() {
                           </button>
                         ))}
                       </div>
+
+                      {/* Spatial harmony toggle */}
+                      <div className="rounded-2xl border border-charcoal/10 bg-white p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="font-bold text-charcoal">Include spatial harmony guidance</p>
+                            <p className="mt-1 text-sm text-charcoal-light">
+                              AI-generated feng shui analysis — colour palette, energy flow, placement tips.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setIncludeFengShui((v) => !v)}
+                            className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition-colors ${
+                              includeFengShui ? "bg-petrol-dark" : "bg-charcoal/20"
+                            }`}
+                            aria-label="Toggle spatial harmony guidance"
+                          >
+                            <span
+                              className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                                includeFengShui ? "translate-x-6" : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                        </div>
+
+                        {/* Compass direction — only when enabled */}
+                        {includeFengShui && (
+                          <div className="mt-5 border-t border-charcoal/8 pt-5">
+                            <p className="mb-3 text-sm font-bold text-charcoal">
+                              Which direction does this room primarily face?
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {COMPASS_DIRECTIONS.map((dir) => (
+                                <button
+                                  key={dir}
+                                  type="button"
+                                  onClick={() => setCompassDirection(compassDirection === dir ? "" : dir)}
+                                  className={`rounded-xl px-3 py-2 text-xs font-bold capitalize transition ${
+                                    compassDirection === dir
+                                      ? "bg-petrol-dark text-white"
+                                      : "bg-canvas-dark text-charcoal-light hover:text-charcoal"
+                                  }`}
+                                >
+                                  {dir}
+                                </button>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => setCompassDirection(compassDirection === "unknown" ? "" : "unknown")}
+                                className={`rounded-xl px-3 py-2 text-xs font-bold transition ${
+                                  compassDirection === "unknown"
+                                    ? "bg-petrol-dark text-white"
+                                    : "bg-canvas-dark text-charcoal-light hover:text-charcoal"
+                                }`}
+                              >
+                                I don&apos;t know
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
 
+                {/* ── Step 2: Goals ── */}
                 {step === 2 && (
                   <div>
                     <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Renovation goals</h2>
@@ -423,7 +557,113 @@ function NewProjectForm() {
                   </div>
                 )}
 
+                {/* ── Step 3: Scope Sketch ── */}
                 {step === 3 && (
+                  <div>
+                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Scope sketch</h2>
+                    <p className="mt-2 text-sm text-charcoal-light">
+                      Upload a photo or sketch of your existing floor plan. We&apos;ll extract key details to improve your renovation plan.
+                    </p>
+                    <p className="mt-1 text-xs text-charcoal-light/70">
+                      Used only to improve this plan. Not stored on our servers.
+                    </p>
+
+                    <input
+                      ref={floorPlanRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => handleFloorPlanUpload(e.target.files)}
+                    />
+
+                    {/* Upload zone */}
+                    {!floorPlan && !analyzingFloorPlan && (
+                      <button
+                        type="button"
+                        onClick={() => floorPlanRef.current?.click()}
+                        className="mt-8 grid w-full place-items-center rounded-[28px] border-2 border-dashed border-petrol-light bg-petrol-light/12 px-6 py-14 text-center transition hover:bg-petrol-light/20"
+                      >
+                        <Upload className="mb-4 h-9 w-9 text-petrol-dark" />
+                        <span className="font-bold text-petrol-dark">Upload floor plan or sketch</span>
+                        <span className="mt-1.5 text-sm text-charcoal-light">JPG, PNG, or WebP</span>
+                      </button>
+                    )}
+
+                    {/* Analysing */}
+                    {analyzingFloorPlan && (
+                      <div className="mt-8 grid place-items-center rounded-[28px] bg-canvas-dark py-16">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-petrol-light border-t-petrol-dark" />
+                        <p className="mt-4 text-sm text-charcoal-light">Reading your floor plan…</p>
+                      </div>
+                    )}
+
+                    {/* Analysis result */}
+                    {floorPlan && floorPlan.analysis && !analyzingFloorPlan && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-6 rounded-2xl border border-charcoal/10 bg-white p-5"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-bold text-charcoal">{floorPlan.name}</p>
+                            <p className="mt-0.5 text-xs text-petrol-mid">Analysis complete</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={removeFloorPlan}
+                            className="rounded-full p-1.5 hover:bg-canvas-dark"
+                            aria-label="Remove floor plan"
+                          >
+                            <X className="h-4 w-4 text-charcoal-light" />
+                          </button>
+                        </div>
+
+                        <div className="mt-4 grid gap-3">
+                          {floorPlan.analysis.visible_features.length > 0 && (
+                            <div>
+                              <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.10em] text-charcoal-light">
+                                Detected features
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {floorPlan.analysis.visible_features.slice(0, 6).map((f, i) => (
+                                  <span key={i} className="rounded-full bg-canvas-dark px-3 py-1 text-xs text-charcoal">
+                                    {f}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {floorPlan.analysis.structural_concerns.length > 0 && (
+                            <div>
+                              <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.10em] text-clay">
+                                Concerns noted
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {floorPlan.analysis.structural_concerns.map((c, i) => (
+                                  <span key={i} className="rounded-full bg-clay-50 px-3 py-1 text-xs text-clay-700">
+                                    {c}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          <p className="text-xs italic text-charcoal-light">{floorPlan.analysis.ai_notes}</p>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Skip hint */}
+                    {!floorPlan && !analyzingFloorPlan && (
+                      <p className="mt-4 text-center text-xs text-charcoal-light">
+                        Don&apos;t have a floor plan? Skip this step and continue.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* ── Step 4: Photos ── */}
+                {step === 4 && (
                   <div>
                     <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Room photos</h2>
                     <p className="mt-2 text-sm text-charcoal-light">Add up to 5 photos. Previewed locally and used to enrich the brief.</p>
@@ -470,6 +710,7 @@ function NewProjectForm() {
                     )}
                   </div>
                 )}
+
               </motion.div>
             </AnimatePresence>
           </div>
