@@ -100,19 +100,22 @@ function NewProjectForm() {
     if (!eid) return;
     const stored = getProject(eid);
     if (!stored) return;
-    setEditId(eid);
-    const { input } = stored;
-    setName(input.name);
-    setLocation(input.location);
-    setRoomType(input.room_type);
-    setOwnership(input.ownership_type);
-    setRoomSize(input.room_size);
-    setBudget(input.budget_range);
-    setGoals(input.goals);
-    setPhotos(input.photos ?? []);
-    if (input.include_feng_shui) setIncludeFengShui(true);
-    if (input.compass_direction) setCompassDirection(input.compass_direction);
-    if (input.floor_plan) setFloorPlan({ name: input.floor_plan.name, analysis: input.floor_plan.analysis });
+
+    queueMicrotask(() => {
+      setEditId(eid);
+      const { input } = stored;
+      setName(input.name);
+      setLocation(input.location);
+      setRoomType(input.room_type);
+      setOwnership(input.ownership_type);
+      setRoomSize(input.room_size);
+      setBudget(input.budget_range);
+      setGoals(input.goals);
+      setPhotos(input.photos ?? []);
+      setIncludeFengShui(!!input.include_feng_shui);
+      setCompassDirection(input.compass_direction ?? "");
+      setFloorPlan(input.floor_plan ? { name: input.floor_plan.name, analysis: input.floor_plan.analysis } : null);
+    });
   }, [searchParams]);
 
   // Cycle loading messages
@@ -193,6 +196,9 @@ function NewProjectForm() {
             input: { room_type: roomType, location, room_size: roomSize },
           }),
         });
+        if (!res.ok) {
+          throw new Error("Floor plan analysis failed");
+        }
         const analysis = await res.json();
         setFloorPlan({ name: file.name, analysis });
       } catch {

@@ -52,6 +52,21 @@ Typography:
 - `/projects` mock saved projects dashboard
 - `/quote-comparison` mock multi-quote comparison
 
+## AI Features
+
+The app uses the Vercel AI SDK with Gemini for generated plans, quote review,
+quote comparison, and optional floor plan image analysis.
+
+Create `.env.local` with:
+
+```bash
+GOOGLE_GENERATIVE_AI_API_KEY=your_google_gemini_key
+```
+
+Floor plan uploads currently accept JPG, PNG, and WebP images only. The uploaded
+image is sent to `/api/analyze-floor-plan`; only the returned analysis is stored
+with the project, not the raw base64 image.
+
 ## Development
 
 ```bash

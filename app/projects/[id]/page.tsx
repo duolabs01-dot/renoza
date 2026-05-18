@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   AlertTriangle, Check, ChevronDown, Download, Edit3,
@@ -52,11 +52,17 @@ export default function ProjectResultPage() {
 
   // Load from localStorage on mount
   useEffect(() => {
-    if (!id) { setProject(null); return; }
+    if (!id) {
+      queueMicrotask(() => setProject(null));
+      return;
+    }
 
     // Check if this is a shared link (no local storage match)
     const stored = getProject(id);
-    if (stored) { setProject(stored); return; }
+    if (stored) {
+      queueMicrotask(() => setProject(stored));
+      return;
+    }
 
     // Try share param fallback
     const shareParam = new URLSearchParams(window.location.search).get("share");
@@ -76,12 +82,12 @@ export default function ProjectResultPage() {
           .catch(() => setProject(null));
         return;
       } catch {
-        setProject(null);
+        queueMicrotask(() => setProject(null));
         return;
       }
     }
 
-    setProject(null);
+    queueMicrotask(() => setProject(null));
   }, [id]);
 
   // Intersection observer for active section
