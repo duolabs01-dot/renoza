@@ -62,7 +62,7 @@ export function Logo({ className, markSize = 36, showWordmark = true }: LogoProp
             Renoza
           </span>
           <span className="mt-1 hidden text-[8px] font-bold uppercase tracking-[0.22em] text-charcoal-light sm:block">
-            Smart plans. Real value.
+            Plans before contractors
           </span>
         </span>
       )}

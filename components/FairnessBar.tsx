@@ -21,14 +21,14 @@ function useInView() {
 
 export default function FairnessBar({ score }: { score: number }) {
   const [ref, inView] = useInView();
-  const labels = ["Unfair", "Below Average", "Fair", "Good"];
+  const labels = ["Risky", "Iffy", "Fair", "Solid"];
   const labelIdx = score < 0.3 ? 0 : score < 0.5 ? 1 : score < 0.7 ? 2 : 3;
   return (
     <div ref={ref}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, color: "var(--muted)" }}>Unfair</span>
+        <span style={{ fontSize: 12, color: "var(--muted)" }}>Risky</span>
         <span style={{ fontSize: 13, fontWeight: 600, color: "var(--charcoal)" }}>{labels[labelIdx]}</span>
-        <span style={{ fontSize: 12, color: "var(--muted)" }}>Fair</span>
+        <span style={{ fontSize: 12, color: "var(--muted)" }}>Solid</span>
       </div>
       <div className="fairness-track">
         <div className="fairness-dot" style={{ left: inView ? `${score * 100}%` : "0%" }} />
