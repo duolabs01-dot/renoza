@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CONTRACTORS, filterContractors } from "@/lib/contractors";
+import { CONTRACTORS } from "@/lib/contractors";
 import ContractorCard from "@/components/ContractorCard";
 import AnimatedSection from "@/components/AnimatedSection";
 import type { RenovationGoal } from "@/lib/types";

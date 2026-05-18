@@ -200,8 +200,13 @@ export default function DepositShield({ plan, input }: Props) {
       {/* Print styles */}
       <style>{`
         @media print {
-          body > * { display: none !important; }
-          .payment-schedule-print { display: block !important; position: fixed; top: 0; left: 0; right: 0; padding: 32px; }
+          header, footer, nav, .print\\:hidden { display: none !important; }
+          .payment-schedule-print {
+            display: block !important;
+            break-inside: avoid;
+            padding: 32px;
+            background: white;
+          }
         }
       `}</style>
     </div>

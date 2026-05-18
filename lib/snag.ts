@@ -84,7 +84,8 @@ const GENERAL_FINISH_ITEMS: SnaggingItem[] = [
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export function generateSnaggingList(goals: RenovationGoal[], _roomType: RoomType): SnaggingItem[] {
+export function generateSnaggingList(goals: RenovationGoal[], roomType: RoomType): SnaggingItem[] {
+  void roomType;
   const hasMakeover = goals.includes("full-makeover");
 
   if (hasMakeover) {

@@ -61,7 +61,7 @@ export default function ProjectResultPage() {
   // Load project on mount
   useEffect(() => {
     if (!id) {
-      setProject(null);
+      queueMicrotask(() => setProject(null));
       return;
     }
 

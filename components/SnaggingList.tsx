@@ -21,7 +21,9 @@ export default function SnaggingList({ goals, roomType, projectId }: Props) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
-      if (saved) setChecked(JSON.parse(saved));
+      if (saved) {
+        queueMicrotask(() => setChecked(JSON.parse(saved)));
+      }
     } catch { /* ignore */ }
   }, [storageKey]);
 
@@ -151,11 +153,12 @@ export default function SnaggingList({ goals, roomType, projectId }: Props) {
       {/* Print styles scoped to this component */}
       <style>{`
         @media print {
-          body > * { display: none !important; }
+          header, footer, nav, .print\\:hidden { display: none !important; }
           .snag-print-target {
             display: block !important;
-            position: fixed; top: 0; left: 0; right: 0;
-            padding: 32px; background: white;
+            break-inside: avoid;
+            padding: 32px;
+            background: white;
           }
         }
       `}</style>

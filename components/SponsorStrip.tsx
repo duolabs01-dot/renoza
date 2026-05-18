@@ -8,6 +8,7 @@ function BrandLogo({ brand }: { brand: SponsorBrand }) {
 
   if (brand.domain && !failed) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={`https://logo.clearbit.com/${brand.domain}`}
         alt={brand.name}

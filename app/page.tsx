@@ -124,7 +124,7 @@ export default function HomePage() {
         <AnimatedSection className="mb-12 max-w-2xl">
           <p className="eyebrow mb-3">Before &amp; after</p>
           <h2 className="font-display text-4xl font-semibold leading-tight text-charcoal sm:text-5xl">
-            Know what you're aiming for before anyone starts.
+            Know what you&apos;re aiming for before anyone starts.
           </h2>
         </AnimatedSection>
         <BeforeAfterSlider />

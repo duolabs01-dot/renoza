@@ -114,7 +114,7 @@ function NewProjectForm() {
       setCompassDirection(input.compass_direction ?? "");
       setFloorPlan(input.floor_plan ? { name: input.floor_plan.name, analysis: input.floor_plan.analysis } : null);
     });
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Pre-fill from BallparkEstimator URL params (?room=&goals=&city=)
   useEffect(() => {
