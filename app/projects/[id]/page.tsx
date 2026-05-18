@@ -240,7 +240,7 @@ export default function ProjectResultPage() {
       <div className="container-page py-4">
         <div className="flex gap-3 rounded-2xl border border-clay/25 bg-clay-50 px-4 py-3 text-xs leading-relaxed text-clay-700">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
-          Cost estimates are broad ranges based on typical South African market rates. Always get at least two itemised quotes from registered contractors before committing.
+          These ranges are based on typical SA market rates — broad on purpose. Always get at least two itemised quotes from registered contractors before signing anything.
         </div>
       </div>
 
@@ -278,14 +278,14 @@ export default function ProjectResultPage() {
         <div className="flex min-w-0 flex-col gap-5">
 
           <section id="summary" ref={(el) => { sectionRefs.current["summary"] = el; }}>
-            <SectionCard title="Room Summary">
+            <SectionCard title="The job, in a paragraph" kicker="What we're working with">
               <p className="text-sm leading-7 text-charcoal">{plan.room_summary}</p>
               <p className="mt-3 text-sm leading-7 text-charcoal-light">{plan.recommended_approach}</p>
             </SectionCard>
           </section>
 
           <section id="budget" ref={(el) => { sectionRefs.current["budget"] = el; }}>
-            <SectionCard title="Budget Realism">
+            <SectionCard title="Does the budget match the job?" kicker="Honest answer">
               <p className="mb-6 text-sm leading-7 text-charcoal">{plan.budget_realism}</p>
               <div className="grid items-center gap-6 sm:grid-cols-2">
                 <BudgetGauge low={plan.cost_low} high={plan.cost_high} max={plan.budget_max} size={200} />
@@ -322,16 +322,16 @@ export default function ProjectResultPage() {
 
           {/* WhatsApp brief — 3rd on mobile (most important feature) */}
           <section id="whatsapp" ref={(el) => { sectionRefs.current["whatsapp"] = el; }}>
-            <SectionCard title="WhatsApp Contractor Brief">
-              <p className="mb-4 text-xs text-charcoal-light">
-                Copy and send this to contractors via WhatsApp for consistent, comparable quotes.
+            <SectionCard title="Your contractor brief" kicker="Copy, paste, send — same message to every builder">
+              <p className="mb-4 text-xs leading-5 text-charcoal-light">
+                Send this exact message to every contractor you talk to. Same scope, same questions — so when the quotes come back you&apos;re actually comparing the same thing.
               </p>
               <WhatsAppBubble text={plan.whatsapp_brief} />
             </SectionCard>
           </section>
 
           <section id="work-items" ref={(el) => { sectionRefs.current["work-items"] = el; }}>
-            <SectionCard title="Suggested Work Items">
+            <SectionCard title="How the job breaks down" kicker="Each line should appear on the quote">
               <div className="divide-y divide-charcoal/8">
                 {plan.work_items.map((item, i) => (
                   <AnimatedSection key={i} delay={i * 0.06}>
@@ -370,7 +370,7 @@ export default function ProjectResultPage() {
           )}
 
           <section id="materials" ref={(el) => { sectionRefs.current["materials"] = el; }}>
-            <SectionCard title="Materials List">
+            <SectionCard title="What you'll need to buy" kicker="Materials list">
               <ul className="grid gap-2 sm:grid-cols-2">
                 {plan.materials_list.map((m, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm leading-6 text-charcoal">
@@ -383,7 +383,7 @@ export default function ProjectResultPage() {
           </section>
 
           <section id="labour" ref={(el) => { sectionRefs.current["labour"] = el; }}>
-            <SectionCard title="Labour Categories">
+            <SectionCard title="Who you'll need on site" kicker="Trades involved in this job">
               <ul className="grid gap-2 sm:grid-cols-2">
                 {plan.labour_categories.map((l, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm leading-6 text-charcoal">
@@ -397,7 +397,7 @@ export default function ProjectResultPage() {
 
           {/* Featured contractors */}
           <AnimatedSection className="no-print">
-            <p className="eyebrow mb-3">Featured contractors near you</p>
+            <p className="eyebrow mb-3">Demo contractor profiles</p>
             <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
               {FEATURED_CONTRACTORS.map((c) => (
                 <ContractorTile key={c.id} contractor={c} />
@@ -406,13 +406,13 @@ export default function ProjectResultPage() {
           </AnimatedSection>
 
           <section id="timeline" ref={(el) => { sectionRefs.current["timeline"] = el; }}>
-            <SectionCard title="Renovation Timeline">
+            <SectionCard title="How the job rolls out" kicker="Day-by-day, what's happening when">
               <TimelinePlayer phases={plan.timeline_phases} />
             </SectionCard>
           </section>
 
           <section id="risks" ref={(el) => { sectionRefs.current["risks"] = el; }} className="print-avoid-break">
-            <SectionCard title="Risks & Hidden Costs">
+            <SectionCard title="What could bite you" kicker="Stuff that's caught other people">
               <ul className="flex flex-col gap-3">
                 {plan.risks_and_hidden_costs.map((r, i) => (
                   <li
@@ -428,7 +428,7 @@ export default function ProjectResultPage() {
           </section>
 
           <section id="questions" ref={(el) => { sectionRefs.current["questions"] = el; }} className="print-avoid-break">
-            <SectionCard title="Questions for Your Contractor">
+            <SectionCard title="Questions to ask before you sign" kicker="The ones that separate the pros from the chancers">
               <ol className="flex flex-col gap-3">
                 {plan.questions_for_contractor.map((q, i) => (
                   <li key={i} className="flex gap-3 text-sm leading-6 text-charcoal">
@@ -442,14 +442,14 @@ export default function ProjectResultPage() {
 
           {/* Snagging checklist */}
           <section id="snagging" ref={(el) => { sectionRefs.current["snagging"] = el; }} className="print-avoid-break">
-            <SectionCard title="Snagging Checklist" kicker="Sign off before paying the final invoice">
+            <SectionCard title="Snagging checklist" kicker="Walk through this before you pay the final invoice">
               <SnaggingList goals={input.goals} roomType={input.room_type} projectId={id} />
             </SectionCard>
           </section>
 
           {/* Contractor directory — filtered by goals + location */}
           <section id="contractors" ref={(el) => { sectionRefs.current["contractors"] = el; }} className="print-avoid-break no-print">
-            <SectionCard title="Find a Contractor" kicker="Demo profiles — matched to your goals">
+            <SectionCard title="Find someone to do the work" kicker="Demo profiles — matched to your job">
               <div className="grid gap-4 sm:grid-cols-2">
                 {filterContractors(input.location, input.goals).map((c) => (
                   <ContractorCard
@@ -468,7 +468,7 @@ export default function ProjectResultPage() {
 
           {/* Payment Schedule */}
           <section id="payment" ref={(el) => { sectionRefs.current["payment"] = el; }} className="print-avoid-break">
-            <SectionCard title="Payment Schedule" kicker="Plan your milestone payments">
+            <SectionCard title="Payment schedule" kicker="When money should change hands — and when it shouldn't">
               <DepositShield plan={plan} input={input} projectId={id} />
             </SectionCard>
           </section>
@@ -488,7 +488,7 @@ export default function ProjectResultPage() {
               onClick={() => router.push("/quote-review")}
               className="rounded-full bg-petrol-dark px-5 py-3 text-sm font-bold text-white"
             >
-              Review a contractor quote →
+              Got a quote already? Run it past us →
             </button>
             <button
               onClick={() => router.push("/projects/new")}
