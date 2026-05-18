@@ -106,9 +106,9 @@ export default function ProjectsDashboard() {
         <AnimatedSection>
           <div className="flex items-start justify-between gap-4 sm:items-center">
             <div>
-              <p className="eyebrow mb-2">My Projects</p>
+              <p className="eyebrow mb-2">My Plans</p>
               <h1 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">
-                Your renovation plans
+                Your renovations, planned properly
               </h1>
             </div>
             <Link href="/projects/new" className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-petrol-dark px-4 py-2.5 text-sm font-semibold text-white hover:bg-petrol-mid">
@@ -167,16 +167,16 @@ export default function ProjectsDashboard() {
                   <Home className="h-7 w-7 text-charcoal-light/40" />
                 </div>
                 <p className="text-lg font-semibold text-charcoal">
-                  {filter === "all" ? "No projects yet" : `No ${STATUS_LABELS[filter as ProjectStatus].toLowerCase()} projects`}
+                  {filter === "all" ? "Nothing here yet" : `No ${STATUS_LABELS[filter as ProjectStatus].toLowerCase()} plans`}
                 </p>
                 <p className="mt-2 max-w-xs text-sm leading-6 text-charcoal-light">
                   {filter === "all"
-                    ? "Start by creating your first renovation plan. It only takes a few minutes."
+                    ? "Your first plan takes about three minutes. It could save you thousands."
                     : "Try a different filter above."}
                 </p>
                 {filter === "all" && (
                   <Link href="/projects/new" className="mt-6 inline-flex items-center rounded-2xl bg-petrol-dark px-5 py-3 text-sm font-semibold text-white hover:bg-petrol-mid">
-                    Create my first plan
+                    Build my first plan
                   </Link>
                 )}
               </div>

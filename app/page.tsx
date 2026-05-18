@@ -10,16 +10,16 @@ import SamplePlanPreview from "@/components/SamplePlanPreview";
 import SponsorStrip from "@/components/SponsorStrip";
 
 const steps = [
-  { icon: Camera, title: "Upload photos", body: "Capture the room as it is. Renoza turns visible condition, budget, and goals into a practical brief." },
-  { icon: Hammer, title: "Set the budget", body: "Choose what you can spend and see what is realistic before a contractor shapes the conversation." },
-  { icon: FileSearch, title: "Get the plan", body: "Receive cost ranges, work items, risks, and a WhatsApp brief that contractors can actually quote against." },
+  { icon: Camera, title: "Show us the room", body: "Upload photos of the actual space — damp patches, cracked tiles, and all. The honest picture builds an honest brief." },
+  { icon: Hammer, title: "Set your ceiling", body: "Tell us what you can spend. We'll show you what that actually buys before a contractor starts reshaping your expectations." },
+  { icon: FileSearch, title: "Walk away with a plan", body: "Rand-based cost ranges, hidden cost warnings, and a WhatsApp message ready to send to contractors. Done in under a minute." },
 ];
 
 const features = [
-  "Rand-based ranges instead of fake precision",
-  "Safety checks for damp, electrical, plumbing, and waterproofing",
-  "Native sponsored recommendations labelled clearly",
-  "Contractor language rewritten into plain English",
+  "Actual Rand ranges — not vague 'it depends' answers",
+  "Red flags for risky deposit terms and vague scope language",
+  "Built-in checks for damp, electrical, plumbing, and structural risk",
+  "A WhatsApp brief written the way contractors understand it",
 ];
 
 export default function HomePage() {
@@ -40,17 +40,17 @@ export default function HomePage() {
             className="max-w-3xl"
           >
             <p className="mb-5 inline-flex rounded-full border border-white/20 bg-white/12 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-petrol-light backdrop-blur">
-              AI renovation planning for South African homes
+              Built for South African homeowners
             </p>
             <h1 className="font-display text-5xl font-semibold leading-[0.98] tracking-normal text-white sm:text-7xl lg:text-8xl">
-              Your renovation. Your budget. No surprises.
+              Know what your renovation should cost. Before the contractor does.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-8 text-white/72">
-              Renoza turns room photos, budget, and contractor quotes into practical renovation plans grounded in South African prices and real renovation risk.
+              Real Rand ranges, red flag detection, and a WhatsApp brief that puts you in charge — before anyone asks for a deposit.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href="/projects/new" className="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-4 text-sm font-bold text-petrol-dark shadow-2xl shadow-black/20 transition hover:-translate-y-0.5">
-                Plan my renovation
+                Build my free plan
                 <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
               </Link>
               <Link href="/quote-review" className="inline-flex items-center justify-center rounded-full border border-white/32 bg-white/10 px-6 py-4 text-sm font-bold text-white backdrop-blur transition hover:bg-white/18">
@@ -117,7 +117,7 @@ export default function HomePage() {
           <AnimatedSection className="mx-auto mb-12 max-w-2xl text-center">
             <p className="eyebrow mb-3">How it works</p>
             <h2 className="font-display text-4xl font-semibold text-charcoal sm:text-5xl">
-              Calm steps for a stressful decision.
+              Three steps between you and a quote you can trust.
             </h2>
           </AnimatedSection>
           <div className="grid gap-5 md:grid-cols-3">
@@ -140,9 +140,9 @@ export default function HomePage() {
       <section className="container-page grid gap-12 py-24 lg:grid-cols-2 lg:items-center">
         <AnimatedSection className="feature-image-lounge min-h-[520px] rounded-[36px] editorial-shadow" />
         <AnimatedSection className="max-w-xl">
-          <p className="eyebrow mb-4">Trust layer</p>
+          <p className="eyebrow mb-4">Built for the hard part</p>
           <h2 className="font-display text-4xl font-semibold leading-tight text-charcoal sm:text-5xl">
-            Pretty images are easy. Renovating safely is the hard part.
+            Contractors know their numbers. Now you will too.
           </h2>
           <div className="mt-8 grid gap-4">
             {features.map((feature) => (
@@ -157,12 +157,12 @@ export default function HomePage() {
 
       <section className="border-y border-charcoal/10 bg-white py-20">
         <div className="container-page mb-8">
-          <p className="eyebrow mb-3">Curated recommendations</p>
+          <p className="eyebrow mb-3">Curated picks</p>
           <h2 className="font-display text-4xl font-semibold text-charcoal">
-            Tools, materials, and services matched to your project.
+            The right materials and services for your specific job.
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-charcoal-light">
-            Sponsored placements are labelled, contextual, and designed to feel like a helpful shortlist rather than a noisy banner.
+            Every recommendation is matched to your room and goals. Sponsored placements are always labelled — never buried.
           </p>
         </div>
         <SponsorStrip />
@@ -172,13 +172,13 @@ export default function HomePage() {
         <AnimatedSection className="container-page text-center">
           <Sparkles className="mx-auto mb-5 h-8 w-8 text-petrol-light" />
           <h2 className="font-display text-4xl font-semibold sm:text-6xl">
-            Ready to renovate smarter?
+            Your next renovation. Your rules.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-white/68">
-            Start with a plan that helps you feel capable before anyone asks for a deposit.
+            Thousands of SA homeowners build their plan before picking up the phone. Yours takes three minutes and it&apos;s free.
           </p>
           <Link href="/projects/new" className="mt-9 inline-flex items-center gap-2 rounded-full bg-white px-6 py-4 text-sm font-bold text-petrol-dark">
-            Build my Renoza plan <ShieldCheck className="h-4 w-4" />
+            Build my free plan <ShieldCheck className="h-4 w-4" />
           </Link>
         </AnimatedSection>
       </section>

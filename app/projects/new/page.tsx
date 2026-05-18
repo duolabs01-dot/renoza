@@ -301,10 +301,10 @@ function NewProjectForm() {
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <p className="eyebrow mb-4">{editId ? "Edit plan" : "New plan"}</p>
           <h1 className="font-display text-4xl font-semibold leading-tight text-charcoal sm:text-5xl">
-            {editId ? "Update your renovation plan." : "Tell us enough to protect the budget."}
+            {editId ? "Let's sharpen the plan." : "Five minutes now. Thousands saved later."}
           </h1>
           <p className="mt-5 max-w-md text-base leading-8 text-charcoal-light">
-            Renoza works best when the brief is specific. We ask only what changes the plan: place, room, budget, goals, and photos.
+            Tell us the room, the budget, and what needs doing. We&apos;ll build a plan and a WhatsApp brief that puts you in control before the first call.
           </p>
           <div className="mt-8 rounded-[28px] bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-charcoal-light">
@@ -362,8 +362,8 @@ function NewProjectForm() {
                 {/* ── Step 0: Project ── */}
                 {step === 0 && (
                   <div>
-                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Project details</h2>
-                    <p className="mt-2 text-sm text-charcoal-light">Name the renovation and place it in South African reality.</p>
+                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">What&apos;s the job?</h2>
+                    <p className="mt-2 text-sm text-charcoal-light">Give it a name and tell us where you are — SA prices vary a lot by city.</p>
                     <div className="mt-8 grid gap-5">
                       <label className="block">
                         <span className="text-sm font-bold text-charcoal">Project name</span>
@@ -390,8 +390,8 @@ function NewProjectForm() {
                 {/* ── Step 1: Room ── */}
                 {step === 1 && (
                   <div>
-                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Room and budget</h2>
-                    <p className="mt-2 text-sm text-charcoal-light">Select the room, ownership, budget, and approximate size.</p>
+                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">The room and your budget</h2>
+                    <p className="mt-2 text-sm text-charcoal-light">Pick the room type and be honest about size — it&apos;s what separates a ballpark from a real number.</p>
                     <div className="mt-8 grid gap-7">
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         {ROOM_TYPES.map((room) => {
@@ -462,9 +462,9 @@ function NewProjectForm() {
                       <div className="rounded-2xl border border-charcoal/10 bg-white p-5">
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="font-bold text-charcoal">Include spatial harmony guidance</p>
+                            <p className="font-bold text-charcoal">Add spatial harmony guidance</p>
                             <p className="mt-1 text-sm text-charcoal-light">
-                              AI-generated feng shui analysis — colour palette, energy flow, placement tips.
+                              Feng shui analysis for the room — colours, energy flow, and placement tips that actually make sense.
                             </p>
                           </div>
                           <button
@@ -526,8 +526,8 @@ function NewProjectForm() {
                 {/* ── Step 2: Goals ── */}
                 {step === 2 && (
                   <div>
-                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Renovation goals</h2>
-                    <p className="mt-2 text-sm text-charcoal-light">Choose every job you want included in the contractor scope.</p>
+                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">What needs doing?</h2>
+                    <p className="mt-2 text-sm text-charcoal-light">Pick everything you want in scope. Miss something here and it won&apos;t end up in the brief.</p>
                     <div className="mt-8 grid gap-3 sm:grid-cols-2">
                       {GOAL_OPTIONS.map((goal) => {
                         const Icon = goalIcons[goal] ?? Home;
@@ -566,12 +566,12 @@ function NewProjectForm() {
                 {/* ── Step 3: Scope Sketch ── */}
                 {step === 3 && (
                   <div>
-                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Scope sketch</h2>
+                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Got a floor plan?</h2>
                     <p className="mt-2 text-sm text-charcoal-light">
-                      Upload a photo or sketch of your existing floor plan. We&apos;ll extract key details to improve your renovation plan.
+                      A photo, sketch, or hand-drawn plan helps catch what words miss — we&apos;ll pull out features, risks, and dimensions automatically.
                     </p>
                     <p className="mt-1 text-xs text-charcoal-light/70">
-                      Used only to improve this plan. Not stored on our servers.
+                      Used only to improve this plan. We store the analysis notes, not the raw image.
                     </p>
 
                     <input
@@ -590,8 +590,8 @@ function NewProjectForm() {
                         className="mt-8 grid w-full place-items-center rounded-[28px] border-2 border-dashed border-petrol-light bg-petrol-light/12 px-6 py-14 text-center transition hover:bg-petrol-light/20"
                       >
                         <Upload className="mb-4 h-9 w-9 text-petrol-dark" />
-                        <span className="font-bold text-petrol-dark">Upload floor plan or sketch</span>
-                        <span className="mt-1.5 text-sm text-charcoal-light">JPG, PNG, or WebP</span>
+                        <span className="font-bold text-petrol-dark">Drop your floor plan here</span>
+                        <span className="mt-1.5 text-sm text-charcoal-light">JPG, PNG, or WebP — photo of a drawing works fine</span>
                       </button>
                     )}
 
@@ -662,7 +662,7 @@ function NewProjectForm() {
                     {/* Skip hint */}
                     {!floorPlan && !analyzingFloorPlan && (
                       <p className="mt-4 text-center text-xs text-charcoal-light">
-                        Don&apos;t have a floor plan? Skip this step and continue.
+                        No floor plan? No problem — skip this and we&apos;ll work from what you told us.
                       </p>
                     )}
                   </div>
@@ -671,8 +671,8 @@ function NewProjectForm() {
                 {/* ── Step 4: Photos ── */}
                 {step === 4 && (
                   <div>
-                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Room photos</h2>
-                    <p className="mt-2 text-sm text-charcoal-light">Add up to 5 photos. Previewed locally and used to enrich the brief.</p>
+                    <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">Show us the room</h2>
+                    <p className="mt-2 text-sm text-charcoal-light">Photos let us flag visible problems before a contractor charges to &ldquo;discover&rdquo; them. Up to 5, optional.</p>
                     <input
                       ref={fileRef}
                       type="file"
@@ -688,8 +688,8 @@ function NewProjectForm() {
                         className="mt-8 grid w-full place-items-center rounded-[28px] border-2 border-dashed border-petrol-light bg-petrol-light/12 px-6 py-12 text-center transition hover:bg-petrol-light/20"
                       >
                         <Upload className="mb-4 h-9 w-9 text-petrol-dark" />
-                        <span className="font-bold text-petrol-dark">Click to browse photos</span>
-                        <span className="mt-1 text-sm text-charcoal-light">JPG, PNG or HEIC — up to 5 photos</span>
+                        <span className="font-bold text-petrol-dark">Add photos of the room</span>
+                        <span className="mt-1 text-sm text-charcoal-light">JPG, PNG or HEIC — up to 5, completely optional</span>
                       </button>
                     )}
                     {photos.length > 0 && (
