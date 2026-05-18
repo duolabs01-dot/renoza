@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: "Renoza - AI Renovation Planner for South African Homes",
   description:
     "From room photo to fair quote. Renoza helps South African homeowners plan renovations, check contractor quotes, and build WhatsApp-ready briefs.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({

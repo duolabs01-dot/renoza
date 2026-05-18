@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { LogoMark } from "@/components/Logo";
 
 const links = [
   { href: "/projects", label: "My Projects" },
@@ -24,8 +25,8 @@ export default function Nav() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-petrol-dark text-xs font-bold tracking-tight text-white shadow-md shadow-petrol-dark/20 sm:h-9 sm:w-9">
-            RZ
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-white shadow-md shadow-petrol-dark/15 sm:h-9 sm:w-9">
+            <LogoMark size={26} />
           </span>
           <span className="font-display text-lg font-semibold text-charcoal sm:text-xl">
             Renoza
@@ -77,8 +78,8 @@ export default function Nav() {
               <div className="flex h-full flex-col">
                 {/* Sheet header */}
                 <div className="flex items-center gap-2.5 border-b border-charcoal/10 px-5 py-4">
-                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-petrol-dark text-xs font-bold text-white">
-                    RZ
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-white shadow-md shadow-petrol-dark/15">
+                    <LogoMark size={26} />
                   </span>
                   <span className="font-display text-lg font-semibold text-charcoal">Renoza</span>
                 </div>
