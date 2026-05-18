@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, ShieldAlert, CheckCircle2, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { compareContractorQuotes } from "@/lib/mock-ai";
 import type { QuoteComparison, SingleQuoteSummary } from "@/lib/types";
 import AnimatedSection from "@/components/AnimatedSection";
 import { Button } from "@/components/ui/button";
@@ -108,14 +107,23 @@ export default function QuoteComparisonPage() {
   const filled = quoteTexts.slice(0, quoteCount).filter((q) => q.trim()).length;
   const canAnalyse = filled >= 2;
 
-  const handleAnalyse = () => {
+  const handleAnalyse = async () => {
     const quotes = quoteTexts.slice(0, quoteCount).filter((q) => q.trim());
     setAnalysing(true);
     setResult(null);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/compare-quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quotes }),
+      });
+      setResult(await res.json());
+    } catch {
+      const { compareContractorQuotes } = await import("@/lib/mock-ai");
       setResult(compareContractorQuotes({ quotes }));
+    } finally {
       setAnalysing(false);
-    }, 1800);
+    }
   };
 
   const handleReset = () => {

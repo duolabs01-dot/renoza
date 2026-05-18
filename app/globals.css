@@ -16,6 +16,17 @@
   --charcoal: #2d2d2d;
   --charcoal-light: #4a4a4a;
   --white: #ffffff;
+  /* Legacy aliases — kept for components that reference old token names */
+  --petrol-50: #f0f7f4;
+  --petrol-200: #a8d4c0;
+  --petrol-500: #338567;
+  --petrol-600: #338567;
+  --petrol-700: #1e5541;
+  --clay-50: #fdf2ee;
+  --clay-200: #e8a88e;
+  --clay-400: #c7603e;
+  --clay-700: #9e3d1e;
+  --muted: #4a4a4a;
   /* shadcn tokens — mapped to Renoza palette */
   --background: #faf8f5;         /* canvas */
   --foreground: #2d2d2d;         /* charcoal */
@@ -339,5 +350,35 @@ button {
   }
   html {
     @apply font-sans;
+  }
+}
+
+@media print {
+  header,
+  footer,
+  nav,
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: #2d2d2d !important;
+    font-size: 12pt;
+  }
+  .print-break {
+    page-break-before: always;
+  }
+  .print-avoid-break {
+    page-break-inside: avoid;
+  }
+  main {
+    padding: 0 !important;
+  }
+  [class*="shadow"] {
+    box-shadow: none !important;
+  }
+  [class*="backdrop"] {
+    backdrop-filter: none !important;
   }
 }

@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { generateRenovationPlan } from "@/lib/mock-ai";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  AlertTriangle, Check, ChevronDown, Download, Edit3,
+  MessageSquare, Share2, Trash2,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { getProject, deleteProject } from "@/lib/storage";
 import { BUDGET_LABELS, ROOM_TYPE_LABELS } from "@/lib/types";
-import type { ProjectInput } from "@/lib/types";
+import type { StoredProject } from "@/lib/types";
 import { SPONSOR_PRODUCTS, FEATURED_CONTRACTORS } from "@/lib/sponsors";
 import AnimatedSection from "@/components/AnimatedSection";
 import SectionCard from "@/components/SectionCard";
@@ -15,181 +20,323 @@ import TimelinePlayer from "@/components/TimelinePlayer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
 import SponsoredCard from "@/components/SponsoredCard";
 import ContractorTile from "@/components/ContractorTile";
+import CopyButton from "@/components/CopyButton";
+import { Badge } from "@/components/ui/badge";
 
 const SECTIONS = [
-  { id: "summary", label: "Summary" }, { id: "approach", label: "Approach" },
-  { id: "budget", label: "Budget" }, { id: "work-items", label: "Work Items" },
-  { id: "materials", label: "Materials" }, { id: "labour", label: "Labour" },
-  { id: "timeline", label: "Timeline" }, { id: "risks", label: "Risks" },
-  { id: "questions", label: "Questions" }, { id: "whatsapp", label: "WhatsApp Brief" },
+  { id: "summary", label: "Summary" },
+  { id: "budget", label: "Budget" },
+  { id: "whatsapp", label: "WhatsApp Brief" },
+  { id: "work-items", label: "Work Items" },
+  { id: "materials", label: "Materials" },
+  { id: "labour", label: "Labour" },
+  { id: "timeline", label: "Timeline" },
+  { id: "risks", label: "Risks" },
+  { id: "questions", label: "Questions" },
 ];
 
 export default function ProjectResultPage() {
-  const searchParams = useSearchParams();
+  const params = useParams<{ id: string }>();
   const router = useRouter();
+  const id = params.id;
+
+  const [project, setProject] = useState<StoredProject | null | undefined>(undefined);
   const [activeSection, setActiveSection] = useState("summary");
+  const [copiedUrl, setCopiedUrl] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const raw = searchParams.get("data");
-  const input: ProjectInput | null = useMemo(() => {
-    if (!raw) return null;
-    try { return JSON.parse(raw) as ProjectInput; } catch { return null; }
-  }, [raw]);
-
-  const plan = useMemo(() => input ? generateRenovationPlan(input) : null, [input]);
-
+  // Load from localStorage on mount
   useEffect(() => {
-    if (!plan) return;
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
-    }, { threshold: 0.15, rootMargin: "-80px 0px -60% 0px" });
+    if (!id) { setProject(null); return; }
+
+    // Check if this is a shared link (no local storage match)
+    const stored = getProject(id);
+    if (stored) { setProject(stored); return; }
+
+    // Try share param fallback
+    const shareParam = new URLSearchParams(window.location.search).get("share");
+    if (shareParam) {
+      try {
+        const { input } = JSON.parse(atob(shareParam));
+        // Regenerate plan for shared links
+        fetch("/api/generate-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(input),
+        })
+          .then((r) => r.json())
+          .then((plan) => {
+            setProject({ id, input, plan, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+          })
+          .catch(() => setProject(null));
+        return;
+      } catch {
+        setProject(null);
+        return;
+      }
+    }
+
+    setProject(null);
+  }, [id]);
+
+  // Intersection observer for active section
+  useEffect(() => {
+    if (!project) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+      },
+      { threshold: 0.15, rootMargin: "-80px 0px -60% 0px" },
+    );
     Object.values(sectionRefs.current).forEach((el) => { if (el) obs.observe(el); });
     return () => obs.disconnect();
-  }, [plan]);
+  }, [project]);
 
-  const scrollTo = (id: string) => {
-    const el = sectionRefs.current[id];
+  const scrollTo = (sectionId: string) => {
+    const el = sectionRefs.current[sectionId];
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  if (!input || !plan) {
+  const shareUrl = useCallback(() => {
+    if (!project) return;
+    const shareData = btoa(JSON.stringify({ input: project.input }));
+    const url = `${window.location.origin}/projects/${id}?share=${shareData}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 2000);
+    });
+  }, [project, id]);
+
+  const handleDelete = () => {
+    if (!id) return;
+    deleteProject(id);
+    router.push("/projects");
+  };
+
+  // Loading / not found states
+  if (project === undefined) {
     return (
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
-        <p style={{ color: "var(--muted)", fontSize: 14, marginBottom: 20 }}>Could not load project data.</p>
-        <button onClick={() => router.push("/projects/new")} className="btn-scale" style={{
-          padding: "12px 28px", borderRadius: 10, background: "var(--petrol-700)", color: "white", fontSize: 14, fontWeight: 600,
-        }}>Start a new plan</button>
+      <div className="grid min-h-[60vh] place-items-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-petrol-light border-t-petrol-dark" />
       </div>
     );
   }
 
-  const relevantProducts = SPONSOR_PRODUCTS.filter((p) => input.goals.some((g) => p.tags.includes(g))).slice(0, 4);
+  if (project === null) {
+    return (
+      <div className="grid min-h-[60vh] place-items-center px-6 text-center">
+        <div>
+          <p className="mb-4 text-sm text-charcoal-light">Plan not found or link expired.</p>
+          <button
+            onClick={() => router.push("/projects/new")}
+            className="rounded-full bg-petrol-dark px-5 py-2.5 text-sm font-bold text-white"
+          >
+            Start a new plan
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { input, plan } = project;
+  const relevantProducts = SPONSOR_PRODUCTS.filter((p) =>
+    input.goals.some((g) => p.tags.includes(g)),
+  ).slice(0, 4);
   const maxItemCost = Math.max(...plan.work_items.map((w) => w.high));
 
   return (
-    <div className="page-enter">
-
-      {/* Header */}
-      <div style={{ borderBottom: "1px solid var(--canvas-dark)", background: "white" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
-            <div>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--petrol-600)", marginBottom: 6 }}>Renovation Plan</p>
-              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 700, color: "var(--charcoal)", marginBottom: 10 }}>{input.name}</h1>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {[ROOM_TYPE_LABELS[input.room_type], input.location, BUDGET_LABELS[input.budget_range]].map((tag, i) => (
-                  <span key={i} style={{ fontSize: 12, padding: "4px 12px", borderRadius: 20, background: "var(--canvas)", border: "1px solid var(--canvas-dark)", color: "var(--charcoal-light)" }}>{tag}</span>
-                ))}
+    <div>
+      {/* ── Page header ── */}
+      <div className="border-b border-charcoal/10 bg-white">
+        <div className="container-page py-6 sm:py-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="eyebrow mb-2">Renovation Plan</p>
+              <h1 className="font-display text-2xl font-semibold text-charcoal sm:text-3xl">
+                {input.name}
+              </h1>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Badge variant="secondary">{ROOM_TYPE_LABELS[input.room_type]}</Badge>
+                <Badge variant="secondary">{input.location}</Badge>
+                <Badge variant="secondary">{BUDGET_LABELS[input.budget_range]}</Badge>
               </div>
             </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button className="btn-scale" style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid var(--canvas-dark)", background: "white", color: "var(--charcoal)" }}>Share</button>
-              <button className="btn-scale" onClick={() => scrollTo("whatsapp")} style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid var(--petrol-200)", background: "var(--petrol-50)", color: "var(--petrol-700)" }}>Copy WhatsApp brief</button>
+
+            {/* Action buttons */}
+            <div className="no-print flex shrink-0 flex-wrap gap-2">
+              <CopyButton text={plan.whatsapp_brief} label="Copy brief" />
+              <button
+                onClick={shareUrl}
+                className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-light hover:text-charcoal"
+              >
+                {copiedUrl ? <Check className="h-4 w-4 text-petrol-mid" /> : <Share2 className="h-4 w-4" />}
+                {copiedUrl ? "Copied!" : "Share"}
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-light hover:text-charcoal"
+              >
+                <Download className="h-4 w-4" />
+                PDF
+              </button>
+              <button
+                onClick={() => router.push(`/projects/new?edit=${id}`)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-light hover:text-charcoal"
+              >
+                <Edit3 className="h-4 w-4" />
+                Edit
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-light hover:text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
-        <div className="gradient-line" />
+
+        {/* Mobile horizontal section nav */}
+        <div className="no-print -mx-0 overflow-x-auto border-t border-charcoal/10 lg:hidden">
+          <div className="flex gap-1 px-4 py-2">
+            {SECTIONS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => scrollTo(s.id)}
+                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  activeSection === s.id
+                    ? "bg-petrol-dark text-white"
+                    : "text-charcoal-light hover:bg-canvas-dark hover:text-charcoal"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Disclaimer */}
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "16px 24px" }}>
-        <div style={{ borderRadius: 10, background: "var(--clay-50)", border: "1px solid var(--clay-200)", padding: "12px 18px", fontSize: 12, color: "var(--clay-700)", lineHeight: 1.6 }}>
+      {/* ── Disclaimer ── */}
+      <div className="container-page py-4">
+        <div className="flex gap-3 rounded-2xl border border-clay/25 bg-clay-50 px-4 py-3 text-xs leading-relaxed text-clay-700">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
           Cost estimates are broad ranges based on typical South African market rates. Always get at least two itemised quotes from registered contractors before committing.
         </div>
       </div>
 
-      {/* Two-column layout */}
-      <div className="result-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px 80px", display: "grid", gridTemplateColumns: "200px 1fr", gap: 32 }}>
+      {/* ── Body ── */}
+      <div className="container-page grid gap-8 pb-24 lg:grid-cols-[200px_1fr] lg:pb-16">
 
-        {/* Sidebar */}
-        <aside className="result-sidebar" style={{ position: "sticky", top: 76, alignSelf: "start", display: "flex", flexDirection: "column", gap: 2 }}>
-          {SECTIONS.map((s) => (
-            <button key={s.id} onClick={() => scrollTo(s.id)} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
-              borderRadius: 8, fontSize: 13, fontWeight: activeSection === s.id ? 600 : 400,
-              color: activeSection === s.id ? "var(--petrol-700)" : "var(--muted)",
-              background: activeSection === s.id ? "var(--petrol-50)" : "transparent",
-              textAlign: "left", transition: "all 0.2s", width: "100%", border: "none", cursor: "pointer",
-            }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: activeSection === s.id ? "var(--petrol-600)" : "var(--canvas-dark)", transition: "all 0.3s" }} />
-              {s.label}
-            </button>
-          ))}
+        {/* Desktop sidebar */}
+        <aside className="no-print hidden lg:sticky lg:top-24 lg:block lg:self-start">
+          <div className="flex flex-col gap-0.5">
+            {SECTIONS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => scrollTo(s.id)}
+                className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                  activeSection === s.id
+                    ? "bg-petrol-dark/8 font-semibold text-petrol-dark"
+                    : "font-medium text-charcoal-light hover:text-charcoal"
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                    activeSection === s.id ? "bg-petrol-dark" : "bg-charcoal/20"
+                  }`}
+                />
+                {s.label}
+              </button>
+            ))}
+          </div>
         </aside>
 
-        {/* Main */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
+        {/* Main content */}
+        <div className="flex min-w-0 flex-col gap-5">
 
           <section id="summary" ref={(el) => { sectionRefs.current["summary"] = el; }}>
             <SectionCard title="Room Summary">
-              <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7 }}>{plan.room_summary}</p>
-            </SectionCard>
-          </section>
-
-          <section id="approach" ref={(el) => { sectionRefs.current["approach"] = el; }}>
-            <SectionCard title="Recommended Approach">
-              <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7 }}>{plan.recommended_approach}</p>
+              <p className="text-sm leading-7 text-charcoal">{plan.room_summary}</p>
+              <p className="mt-3 text-sm leading-7 text-charcoal-light">{plan.recommended_approach}</p>
             </SectionCard>
           </section>
 
           <section id="budget" ref={(el) => { sectionRefs.current["budget"] = el; }}>
             <SectionCard title="Budget Realism">
-              <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7, marginBottom: 24 }}>{plan.budget_realism}</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "center" }}>
+              <p className="mb-6 text-sm leading-7 text-charcoal">{plan.budget_realism}</p>
+              <div className="grid items-center gap-6 sm:grid-cols-2">
                 <BudgetGauge low={plan.cost_low} high={plan.cost_high} max={plan.budget_max} size={200} />
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>Estimated range</div>
-                  <CountUpDisplay value={plan.cost_low} prefix="R" fontSize={28} />
-                  <span style={{ fontSize: 20, color: "var(--muted)", margin: "0 8px" }}>–</span>
-                  <CountUpDisplay value={plan.cost_high} prefix="R" fontSize={28} />
+                <div className="text-center">
+                  <p className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-charcoal-light">
+                    Estimated range
+                  </p>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <CountUpDisplay value={plan.cost_low} prefix="R" className="text-3xl" />
+                    <span className="text-xl text-charcoal-light">–</span>
+                    <CountUpDisplay value={plan.cost_high} prefix="R" className="text-3xl" />
+                  </div>
                 </div>
               </div>
+            </SectionCard>
+          </section>
+
+          {/* WhatsApp brief — 3rd on mobile (most important feature) */}
+          <section id="whatsapp" ref={(el) => { sectionRefs.current["whatsapp"] = el; }}>
+            <SectionCard title="WhatsApp Contractor Brief">
+              <p className="mb-4 text-xs text-charcoal-light">
+                Copy and send this to contractors via WhatsApp for consistent, comparable quotes.
+              </p>
+              <WhatsAppBubble text={plan.whatsapp_brief} />
             </SectionCard>
           </section>
 
           <section id="work-items" ref={(el) => { sectionRefs.current["work-items"] = el; }}>
             <SectionCard title="Suggested Work Items">
-              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              <div className="divide-y divide-charcoal/8">
                 {plan.work_items.map((item, i) => (
-                  <AnimatedSection key={i} delay={i * 0.08}>
-                    <div style={{ display: "flex", gap: 16, padding: "16px 0", borderBottom: i < plan.work_items.length - 1 ? "1px solid var(--canvas-dark)" : "none", alignItems: "flex-start" }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--charcoal)", marginBottom: 3 }}>{item.category}</div>
-                        <div style={{ fontSize: 13, color: "var(--charcoal-light)", lineHeight: 1.55 }}>{item.description}</div>
+                  <AnimatedSection key={i} delay={i * 0.06}>
+                    <div className="flex items-start gap-4 py-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-charcoal">{item.category}</p>
+                        <p className="mt-1 text-sm leading-6 text-charcoal-light">{item.description}</p>
                       </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "var(--petrol-700)", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>{item.estimated_cost}</div>
+                      <span className="shrink-0 text-sm font-bold text-petrol-dark">
+                        {item.estimated_cost}
+                      </span>
                     </div>
                   </AnimatedSection>
                 ))}
               </div>
-              <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--petrol-700)", borderRadius: 10, padding: "14px 20px" }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "white" }}>Total estimated range</span>
-                <span style={{ fontSize: 18, fontWeight: 700, color: "white", fontVariantNumeric: "tabular-nums" }}>{plan.estimated_cost_range}</span>
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-petrol-dark px-5 py-4">
+                <span className="text-sm font-semibold text-white">Total estimated range</span>
+                <span className="text-lg font-bold text-white">{plan.estimated_cost_range}</span>
               </div>
-              <div style={{ marginTop: 24 }}>
+              <div className="mt-6">
                 <CostBreakdownChart items={plan.work_items} maxCost={maxItemCost * 1.2} />
               </div>
             </SectionCard>
           </section>
 
-          {/* Sponsored Products */}
+          {/* Sponsored products */}
           {relevantProducts.length > 0 && (
-            <AnimatedSection>
-              <div style={{ padding: "20px 0" }}>
-                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 14 }}>Recommended products for your renovation</p>
-                <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
-                  {relevantProducts.map((p) => <SponsoredCard key={p.id} product={p} />)}
-                </div>
+            <AnimatedSection className="no-print">
+              <p className="eyebrow mb-3">Recommended for your renovation</p>
+              <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+                {relevantProducts.map((p) => (
+                  <SponsoredCard key={p.id} product={p} />
+                ))}
               </div>
             </AnimatedSection>
           )}
 
           <section id="materials" ref={(el) => { sectionRefs.current["materials"] = el; }}>
             <SectionCard title="Materials List">
-              <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <ul className="grid gap-2 sm:grid-cols-2">
                 {plan.materials_list.map((m, i) => (
-                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--petrol-500)", marginTop: 2, flexShrink: 0 }}>•</span><span>{m}</span>
+                  <li key={i} className="flex items-start gap-2 text-sm leading-6 text-charcoal">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-petrol-mid" />
+                    {m}
                   </li>
                 ))}
               </ul>
@@ -198,23 +345,24 @@ export default function ProjectResultPage() {
 
           <section id="labour" ref={(el) => { sectionRefs.current["labour"] = el; }}>
             <SectionCard title="Labour Categories">
-              <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <ul className="grid gap-2 sm:grid-cols-2">
                 {plan.labour_categories.map((l, i) => (
-                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.5 }}>
-                    <span style={{ color: "var(--petrol-500)", marginTop: 2, flexShrink: 0 }}>•</span><span>{l}</span>
+                  <li key={i} className="flex items-start gap-2 text-sm leading-6 text-charcoal">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-petrol-mid" />
+                    {l}
                   </li>
                 ))}
               </ul>
             </SectionCard>
           </section>
 
-          {/* Contractor Tiles */}
-          <AnimatedSection>
-            <div style={{ padding: "8px 0 20px" }}>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 14 }}>Featured contractors near you</p>
-              <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
-                {FEATURED_CONTRACTORS.map((c) => <ContractorTile key={c.id} contractor={c} />)}
-              </div>
+          {/* Featured contractors */}
+          <AnimatedSection className="no-print">
+            <p className="eyebrow mb-3">Featured contractors near you</p>
+            <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+              {FEATURED_CONTRACTORS.map((c) => (
+                <ContractorTile key={c.id} contractor={c} />
+              ))}
             </div>
           </AnimatedSection>
 
@@ -224,56 +372,60 @@ export default function ProjectResultPage() {
             </SectionCard>
           </section>
 
-          <section id="risks" ref={(el) => { sectionRefs.current["risks"] = el; }}>
+          <section id="risks" ref={(el) => { sectionRefs.current["risks"] = el; }} className="print-avoid-break">
             <SectionCard title="Risks & Hidden Costs">
-              <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <ul className="flex flex-col gap-3">
                 {plan.risks_and_hidden_costs.map((r, i) => (
-                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.6, paddingLeft: 12, borderLeft: "3px solid var(--clay-400)" }}>
-                    <span>{r}</span>
+                  <li
+                    key={i}
+                    className="flex gap-3 rounded-xl border-l-4 border-clay bg-clay-50 px-4 py-3 text-sm leading-6 text-charcoal"
+                  >
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
+                    {r}
                   </li>
                 ))}
               </ul>
             </SectionCard>
           </section>
 
-          <section id="questions" ref={(el) => { sectionRefs.current["questions"] = el; }}>
+          <section id="questions" ref={(el) => { sectionRefs.current["questions"] = el; }} className="print-avoid-break">
             <SectionCard title="Questions for Your Contractor">
-              <ol style={{ display: "flex", flexDirection: "column", gap: 8, listStyle: "none" }}>
+              <ol className="flex flex-col gap-3">
                 {plan.questions_for_contractor.map((q, i) => (
-                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.6 }}>
-                    <span style={{ color: "var(--petrol-600)", fontWeight: 600, flexShrink: 0, width: 24 }}>{i + 1}.</span>
-                    <span>{q}</span>
+                  <li key={i} className="flex gap-3 text-sm leading-6 text-charcoal">
+                    <span className="shrink-0 font-bold text-petrol-mid">{i + 1}.</span>
+                    {q}
                   </li>
                 ))}
               </ol>
             </SectionCard>
           </section>
 
-          <section id="whatsapp" ref={(el) => { sectionRefs.current["whatsapp"] = el; }}>
-            <SectionCard title="WhatsApp Contractor Brief">
-              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>Copy and send to contractors via WhatsApp to get consistent, comparable quotes.</p>
-              <WhatsAppBubble text={plan.whatsapp_brief} />
-            </SectionCard>
-          </section>
-
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", paddingTop: 16 }}>
-            <button onClick={() => router.push("/quote-review")} className="btn-scale" style={{ padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 600, background: "var(--petrol-700)", color: "white" }}>
+          {/* Bottom CTAs */}
+          <div className="no-print flex flex-wrap gap-3 pt-2">
+            <button
+              onClick={() => router.push("/quote-review")}
+              className="rounded-full bg-petrol-dark px-5 py-3 text-sm font-bold text-white"
+            >
               Review a contractor quote →
             </button>
-            <button onClick={() => router.push("/projects/new")} className="btn-scale" style={{ padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 500, border: "1px solid var(--canvas-dark)", background: "white", color: "var(--charcoal)" }}>
+            <button
+              onClick={() => router.push("/projects/new")}
+              className="rounded-full border border-charcoal/10 bg-white px-5 py-3 text-sm font-semibold text-charcoal"
+            >
               Plan another room
             </button>
           </div>
 
           {/* Financing banner */}
-          <AnimatedSection>
-            <div style={{ borderRadius: 12, border: "1px solid var(--petrol-200)", borderLeft: "4px solid var(--petrol-600)", background: "white", padding: "20px 24px" }}>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>Sponsored</p>
-              <p style={{ fontSize: 15, fontWeight: 600, color: "var(--charcoal)", marginBottom: 4 }}>Financing available</p>
-              <p style={{ fontSize: 13, color: "var(--charcoal-light)", lineHeight: 1.6, marginBottom: 12 }}>
+          <AnimatedSection className="no-print">
+            <div className="rounded-2xl border border-petrol-light/30 border-l-4 border-l-petrol-dark bg-white p-5">
+              <p className="eyebrow mb-2">Sponsored</p>
+              <p className="font-semibold text-charcoal">Financing available</p>
+              <p className="mt-1 text-sm leading-6 text-charcoal-light">
                 Standard Bank Home Improvement Loan — from R5,000 to R300,000. Apply online in 5 minutes with instant pre-approval.
               </p>
-              <button className="btn-scale" style={{ padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 500, background: "var(--petrol-50)", border: "1px solid var(--petrol-200)", color: "var(--petrol-700)" }}>
+              <button className="mt-3 rounded-full border border-petrol-light/40 bg-petrol-dark/6 px-4 py-2 text-sm font-semibold text-petrol-dark">
                 Learn more →
               </button>
             </div>
@@ -281,6 +433,64 @@ export default function ProjectResultPage() {
 
         </div>
       </div>
+
+      {/* ── Sticky mobile WhatsApp copy button ── */}
+      <div className="no-print fixed bottom-6 left-0 right-0 z-40 flex justify-center lg:hidden">
+        <button
+          onClick={() => navigator.clipboard.writeText(plan.whatsapp_brief)}
+          className="inline-flex items-center gap-2 rounded-full bg-petrol-dark px-6 py-3.5 text-sm font-bold text-white shadow-2xl shadow-petrol-dark/35"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Copy WhatsApp Brief
+        </button>
+      </div>
+
+      {/* ── Delete confirm dialog ── */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"
+            >
+              <h2 className="font-display text-xl font-semibold text-charcoal">Delete this plan?</h2>
+              <p className="mt-2 text-sm text-charcoal-light">This cannot be undone.</p>
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-full border border-charcoal/10 py-3 text-sm font-semibold text-charcoal"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 rounded-full bg-red-600 py-3 text-sm font-bold text-white"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Section nav scroll indicator (desktop) ── */}
+      <button
+        onClick={() => scrollTo("questions")}
+        className="no-print fixed bottom-8 right-8 hidden h-10 w-10 place-items-center rounded-full bg-white shadow-lg shadow-charcoal/10 lg:grid"
+        aria-label="Scroll down"
+      >
+        <ChevronDown className="h-5 w-5 text-charcoal-light" />
+      </button>
     </div>
   );
 }

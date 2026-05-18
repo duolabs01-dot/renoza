@@ -7,10 +7,9 @@ import { useState } from "react";
 import CopyButton from "@/components/CopyButton";
 import FairnessBar from "@/components/FairnessBar";
 import SectionCard from "@/components/SectionCard";
-import { reviewContractorQuote } from "@/lib/mock-ai";
 import type { QuoteReview } from "@/lib/types";
 
-const scanMessages = ["Reading the quote", "Checking red flags", "Comparing scope", "Building your review"];
+const scanMessages = ["Reading the quote", "Checking red flags", "Comparing SA market rates", "Building your review"];
 
 export default function QuoteReviewPage() {
   const [quoteText, setQuoteText] = useState("");
@@ -18,19 +17,28 @@ export default function QuoteReviewPage() {
   const [loading, setLoading] = useState(false);
   const [messageIndex, setMessageIndex] = useState(0);
 
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!quoteText.trim()) return;
     setLoading(true);
     setReview(null);
     const timer = window.setInterval(() => {
-      setMessageIndex((current) => (current + 1) % scanMessages.length);
-    }, 700);
-    window.setTimeout(() => {
-      window.clearInterval(timer);
+      setMessageIndex((curr) => (curr + 1) % scanMessages.length);
+    }, 1800);
+    try {
+      const res = await fetch("/api/review-quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quoteText }),
+      });
+      setReview(await res.json());
+    } catch {
+      const { reviewContractorQuote } = await import("@/lib/mock-ai");
       setReview(reviewContractorQuote(quoteText));
+    } finally {
+      window.clearInterval(timer);
       setLoading(false);
-    }, 1900);
+    }
   };
 
   return (

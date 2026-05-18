@@ -23,6 +23,14 @@ export interface ProjectInput {
   photos?: ProjectPhoto[];
 }
 
+export interface StoredProject {
+  id: string;
+  input: ProjectInput;
+  plan: RenovationPlan;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface SavedProject {
   id: string;
   name: string;

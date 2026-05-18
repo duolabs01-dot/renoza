@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Home } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
-import { getMockSavedProjects } from "@/lib/mock-ai";
+import { getAllProjects, toSavedProject } from "@/lib/storage";
 import { ROOM_TYPE_LABELS, STATUS_LABELS, BUDGET_LABELS } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -88,7 +88,12 @@ const FILTERS: Array<{ value: ProjectStatus | "all"; label: string }> = [
 
 export default function ProjectsDashboard() {
   const [filter, setFilter] = useState<ProjectStatus | "all">("all");
-  const allProjects = getMockSavedProjects();
+  const [allProjects, setAllProjects] = useState<SavedProject[]>([]);
+
+  useEffect(() => {
+    setAllProjects(getAllProjects().map(toSavedProject));
+  }, []);
+
   const projects = filter === "all" ? allProjects : allProjects.filter((p) => p.status === filter);
 
   return (
