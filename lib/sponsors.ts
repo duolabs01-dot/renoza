@@ -23,6 +23,7 @@ export interface FeaturedContractor {
 export interface SponsorBrand {
   name: string;
   color: string;
+  domain?: string;
 }
 
 export const SPONSOR_PRODUCTS: SponsorProduct[] = [
@@ -41,12 +42,12 @@ export const FEATURED_CONTRACTORS: FeaturedContractor[] = [
 ];
 
 export const SPONSOR_BRANDS: SponsorBrand[] = [
-  { name: "Plascon", color: "#1a4a8a" },
-  { name: "CTM", color: "#c41e3a" },
-  { name: "Builders", color: "#e65c00" },
-  { name: "Leroy Merlin", color: "#78be20" },
+  { name: "Plascon", color: "#1a4a8a", domain: "plascon.co.za" },
+  { name: "CTM", color: "#c41e3a", domain: "ctm.co.za" },
+  { name: "Builders Warehouse", color: "#e65c00", domain: "builderswarehouse.co.za" },
+  { name: "Leroy Merlin", color: "#78be20", domain: "leroymerlin.co.za" },
   { name: "GreenFloors", color: "#2d7d46" },
-  { name: "Italtile", color: "#1a1a1a" },
-  { name: "Dulux", color: "#003087" },
+  { name: "Italtile", color: "#1a1a1a", domain: "italtile.co.za" },
+  { name: "Dulux", color: "#003087", domain: "dulux.co.za" },
   { name: "Bright Star", color: "#f5a623" },
 ];
