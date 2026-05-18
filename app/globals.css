@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f5;
+  --foreground: #2d2d2d;
 }
 
 @theme inline {
@@ -12,15 +12,35 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-petrol-50: #f0f7f4;
+  --color-petrol-100: #d8ece4;
+  --color-petrol-200: #b3d9ca;
+  --color-petrol-300: #85c0a8;
+  --color-petrol-400: #55a384;
+  --color-petrol-500: #338567;
+  --color-petrol-600: #256b52;
+  --color-petrol-700: #1e5541;
+  --color-petrol-800: #1a4535;
+  --color-petrol-900: #17382c;
+
+  --color-clay-50: #fdf3ee;
+  --color-clay-100: #fae3d6;
+  --color-clay-200: #f5c4a8;
+  --color-clay-300: #ec9d74;
+  --color-clay-400: #e27a4d;
+  --color-clay-500: #c7603e;
+  --color-clay-600: #b04e2e;
+  --color-clay-700: #8f3d23;
+
+  --color-canvas: #faf8f5;
+  --color-canvas-dark: #f2ede7;
+  --color-charcoal: #2d2d2d;
+  --color-charcoal-light: #4a4a4a;
+  --color-muted: #6b7280;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

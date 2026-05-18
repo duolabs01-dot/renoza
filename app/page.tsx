@@ -1,65 +1,106 @@
-import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10 sm:py-16">
+
+      {/* Hero */}
+      <div className="mb-12">
+        <p className="text-sm font-medium text-petrol-600 uppercase tracking-widest mb-3">
+          AI renovation planning for South African homes
+        </p>
+        <h1 className="text-3xl sm:text-4xl font-bold text-charcoal leading-tight mb-4">
+          From room photo to fair quote.
+        </h1>
+        <p className="text-base sm:text-lg text-muted max-w-xl leading-relaxed">
+          Renoza turns your budget and goals into a practical renovation plan —
+          complete with rand-based cost ranges, a materials list, and a
+          contractor-ready WhatsApp brief.
+        </p>
+      </div>
+
+      {/* Primary actions */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-14 max-w-2xl">
+        <Link
+          href="/projects/new"
+          className="flex flex-col gap-3 rounded-xl bg-petrol-700 text-white p-6 hover:bg-petrol-800 transition-colors"
+        >
+          <span className="text-2xl">🏠</span>
+          <div>
+            <div className="font-semibold text-base mb-1">
+              Start renovation plan
+            </div>
+            <div className="text-sm text-petrol-200 leading-snug">
+              Upload photos, set a budget, and get a practical scope with
+              rand-based cost ranges.
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/quote-review"
+          className="flex flex-col gap-3 rounded-xl bg-white border border-canvas-dark text-charcoal p-6 hover:border-petrol-300 hover:shadow-sm transition-all"
+        >
+          <span className="text-2xl">🔍</span>
+          <div>
+            <div className="font-semibold text-base mb-1">
+              Check a contractor quote
+            </div>
+            <div className="text-sm text-muted leading-snug">
+              Paste a quote and get a plain-language review — red flags, missing
+              items, and questions to ask.
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* What Renoza does */}
+      <div className="mb-14">
+        <h2 className="text-lg font-semibold text-charcoal mb-5">
+          What you get
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            {
+              icon: "💰",
+              title: "Rand-based budgets",
+              body: "Cost ranges based on South African market rates. No fake precision — broad bands that reflect real-world variation.",
+            },
+            {
+              icon: "📋",
+              title: "Contractor briefs",
+              body: "A WhatsApp-ready message with your scope, goals, and questions pre-written. Send it to three contractors in minutes.",
+            },
+            {
+              icon: "🛡️",
+              title: "Quote protection",
+              body: "Spot vague language, risky deposits, missing CoC requirements, and hidden costs before you sign anything.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-xl border border-canvas-dark bg-white p-5"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <div className="text-xl mb-3">{item.icon}</div>
+              <div className="font-semibold text-sm text-charcoal mb-1">
+                {item.title}
+              </div>
+              <div className="text-sm text-muted leading-relaxed">{item.body}</div>
+            </div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      {/* South African context note */}
+      <div className="rounded-xl bg-petrol-50 border border-petrol-100 p-5 max-w-2xl">
+        <p className="text-sm text-petrol-800 leading-relaxed">
+          <strong>Built for South Africa.</strong> All prices are in rand.
+          Renoza understands local home realities — damp, load shedding prep,
+          CoC requirements, and the difference between a paint job and a
+          plastering job. Budget ranges are broad because material costs and
+          labour rates vary significantly across provinces.
+        </p>
+      </div>
     </div>
   );
 }
