@@ -13,32 +13,32 @@ Commands run:
 
 ## Findings
 
-### P1: Required MVP routes are missing
+### P2: Photo upload is still a placeholder
 
-The requested routes are not implemented yet:
-
-- `/projects/new`
-- `/projects/[id]`
-- `/quote-review`
+The project intake screen includes a room photo upload placeholder, but there is no actual file upload, storage, or vision analysis yet.
 
 Impact:
 
-The navigation points to routes that do not exist, and the MVP workflow cannot be tested.
+The first MVP can still be tested, but Renoza's "room photo to fair quote" promise is not complete until uploads are connected.
 
-### P2: Mock AI functions exist but are not wired into the UI
+### P2: AI output is deterministic mock data
 
-`lib/mock-ai.ts` and `lib/types.ts` are useful foundations, but no page currently calls `generateRenovationPlan` or `reviewContractorQuote`.
+`generateRenovationPlan` and `reviewContractorQuote` are wired into the UI, but they return typed mock responses.
 
 Impact:
 
-The strongest Renoza differentiation is present in code but not exposed to users yet.
+The UX is testable, but real personalization will need a server-side AI integration.
+
+### P3: Some UI icons are emoji placeholders
+
+Several cards/actions use emoji symbols. This is acceptable for a quick scaffold, but the polished product should use a consistent icon set such as lucide-react.
 
 ## Recommended Next Claude Pass
 
 Ask Claude to implement:
 
-1. Add `/projects/new` with the renovation intake form.
-2. Add `/projects/[id]` with a mock generated plan.
-3. Add `/quote-review` with the quote paste/review workflow.
-4. Use the existing `lib/mock-ai.ts`, `lib/types.ts`, and `app/actions.ts`.
-5. Keep the design practical, mobile-first, and South African market-specific.
+1. Replace emoji placeholders with lucide-react icons.
+2. Add real file upload state for room photos, even if uploads are only previewed locally at first.
+3. Move mock generation behind server actions so Claude/OpenAI can be connected cleanly.
+4. Add Supabase schema and storage plan.
+5. Add basic smoke tests or Playwright flow checks for plan generation and quote review.
