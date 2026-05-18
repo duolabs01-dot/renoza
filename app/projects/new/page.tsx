@@ -51,10 +51,10 @@ const COMPASS_DIRECTIONS: CompassDirection[] = [
 const steps = ["Project", "Room", "Goals", "Scope Sketch", "Photos"];
 
 const LOADING_MESSAGES = [
-  "Analysing room type and goals…",
-  "Checking South African price ranges…",
-  "Building your contractor brief…",
-  "Finalising your renovation plan…",
+  "Sizing up the job…",
+  "Pricing it for your city…",
+  "Flagging what could go sideways…",
+  "Drafting the WhatsApp message…",
 ];
 
 export default function NewProjectPage() {
@@ -329,7 +329,7 @@ function NewProjectForm() {
             {editId ? "Let's sharpen the plan." : "Five minutes now. Thousands saved later."}
           </h1>
           <p className="mt-5 max-w-md text-base leading-8 text-charcoal-light">
-            Tell us the room, the budget, and what needs doing. We&apos;ll build a plan and a WhatsApp brief that puts you in control before the first call.
+            Tell us the room, the budget, and what needs doing. By the end you&apos;ll have a Rand range, a list of what to watch for, and a message you can fire off to any builder — before anyone&apos;s asked for a deposit.
           </p>
           <div className="mt-8 rounded-[28px] bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center justify-between text-xs font-bold uppercase tracking-[0.12em] text-charcoal-light">

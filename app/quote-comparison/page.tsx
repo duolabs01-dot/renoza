@@ -142,8 +142,8 @@ export default function QuoteComparisonPage() {
           <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-[22px] bg-petrol-dark shadow-xl shadow-petrol-dark/25">
             <LogoMark size={50} inverse />
           </div>
-          <h1 className="font-display text-3xl font-semibold text-charcoal">Comparing quotes…</h1>
-          <p className="mt-2 text-sm text-charcoal-light">Checking scope, pricing, and red flags</p>
+          <h1 className="font-display text-3xl font-semibold text-charcoal">Reading all of them…</h1>
+          <p className="mt-2 text-sm text-charcoal-light">Spotting the gaps, the gotchas, and what&apos;s actually different</p>
           <div className="mx-auto mt-8 h-1 w-64 overflow-hidden rounded-full bg-canvas-dark">
             <motion.div className="h-full bg-petrol-dark" initial={{ x: "-100%" }} animate={{ x: "100%" }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} />
           </div>
@@ -160,10 +160,10 @@ export default function QuoteComparisonPage() {
           <AnimatedSection>
             <p className="eyebrow mb-3 text-petrol-light">Quote Comparison</p>
             <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
-              Compare up to 3<br className="hidden sm:block" /> contractor quotes
+              Three quotes,<br className="hidden sm:block" /> three different numbers.
             </h1>
             <p className="mt-4 max-w-lg text-base leading-8 text-white/60">
-              Paste each quote. Renoza checks scope clarity, flags red flags, and tells you which quote is safest to build on — before you pick a winner.
+              Paste them in. We&apos;ll show you which one is honest, which one&apos;s hiding scope, and which one has the small print that&apos;ll cost you later.
             </p>
           </AnimatedSection>
         </div>
@@ -212,8 +212,8 @@ export default function QuoteComparisonPage() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="order-2 text-sm text-charcoal-light sm:order-1">
                 {filled < 2
-                  ? `Add ${2 - filled} more quote${2 - filled !== 1 ? "s" : ""} to compare.`
-                  : `${filled} quote${filled !== 1 ? "s" : ""} ready to compare.`}
+                  ? `Need at least ${2 - filled} more — comparison only works with two or three.`
+                  : `${filled} loaded. Let's see what they say.`}
               </p>
               <Button
                 onClick={handleAnalyse}
@@ -232,7 +232,7 @@ export default function QuoteComparisonPage() {
                 <div>
                   <p className="eyebrow mb-2">Analysis complete</p>
                   <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">
-                    Your quote comparison
+                    Here&apos;s how they stack up.
                   </h2>
                 </div>
                 <button
@@ -261,7 +261,7 @@ export default function QuoteComparisonPage() {
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Card className="border-canvas-dark bg-canvas">
                   <CardHeader className="pb-2 pt-5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Price comparison</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">The price story</p>
                   </CardHeader>
                   <CardContent className="pb-5 pt-0">
                     <p className="text-sm leading-7 text-charcoal-light">{result.price_comparison}</p>
@@ -269,7 +269,7 @@ export default function QuoteComparisonPage() {
                 </Card>
                 <Card className="border-canvas-dark bg-canvas">
                   <CardHeader className="pb-2 pt-5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Scope comparison</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Are they quoting the same job?</p>
                   </CardHeader>
                   <CardContent className="pb-5 pt-0">
                     <p className="text-sm leading-7 text-charcoal-light">{result.scope_comparison}</p>
@@ -282,7 +282,7 @@ export default function QuoteComparisonPage() {
             <AnimatedSection delay={0.2}>
               <div className="mt-4 rounded-3xl bg-petrol-dark p-6 text-white">
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-petrol-light/70">
-                  Recommended next step
+                  What to do next
                 </p>
                 <p className="text-base leading-7">{result.recommended_followup}</p>
               </div>
@@ -293,7 +293,7 @@ export default function QuoteComparisonPage() {
               <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Card className="border-canvas-dark bg-canvas">
                   <CardHeader className="pb-2 pt-5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal-light/60">Missing from all quotes</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal-light/60">What none of them mentioned</p>
                   </CardHeader>
                   <CardContent className="pb-5 pt-0">
                     <ul className="space-y-3">
@@ -308,7 +308,7 @@ export default function QuoteComparisonPage() {
                 </Card>
                 <Card className="border-canvas-dark bg-canvas">
                   <CardHeader className="pb-2 pt-5">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Questions for all contractors</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Send these to all three</p>
                   </CardHeader>
                   <CardContent className="pb-5 pt-0">
                     <ol className="space-y-3">

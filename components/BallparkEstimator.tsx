@@ -70,7 +70,7 @@ export default function BallparkEstimator() {
         {/* Step 1 — Room type */}
         {step === 1 && (
           <div>
-            <p className="mb-4 text-sm font-semibold text-charcoal">Which room are you renovating?</p>
+            <p className="mb-4 text-sm font-semibold text-charcoal">Which room are we sorting?</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {ROOM_TYPES.map((rt) => (
                 <button
@@ -92,7 +92,7 @@ export default function BallparkEstimator() {
         {/* Step 2 — Goals */}
         {step === 2 && (
           <div>
-            <p className="mb-4 text-sm font-semibold text-charcoal">What needs doing? <span className="font-normal text-charcoal-light">(pick all that apply)</span></p>
+            <p className="mb-4 text-sm font-semibold text-charcoal">What needs doing? <span className="font-normal text-charcoal-light">(tick all that apply)</span></p>
             <div className="flex flex-wrap gap-2">
               {GOAL_OPTIONS.map((g) => (
                 <button
@@ -121,7 +121,7 @@ export default function BallparkEstimator() {
         {/* Step 3 — City + result */}
         {step === 3 && (
           <div>
-            <p className="mb-3 text-sm font-semibold text-charcoal">Where is the property? <span className="font-normal text-charcoal-light">(city or suburb)</span></p>
+            <p className="mb-3 text-sm font-semibold text-charcoal">Where&apos;s the place? <span className="font-normal text-charcoal-light">(city changes the price)</span></p>
             <input
               type="text"
               placeholder="e.g. Cape Town, Sandton, Durban North"
@@ -132,7 +132,7 @@ export default function BallparkEstimator() {
             {estimate && (
               <div className="mt-6 rounded-[20px] border border-canvas-dark bg-canvas p-5">
                 <p className="text-[11px] font-bold uppercase tracking-widest text-charcoal-light/60">
-                  Planning estimate
+                  Ballpark
                 </p>
                 <p className="mt-1 font-display text-3xl font-semibold text-petrol-dark">
                   {estimate.estimated_cost_range}
@@ -141,7 +141,7 @@ export default function BallparkEstimator() {
                   {ROOM_TYPE_LABELS[roomType as RoomType]} · {goals.map(g => GOAL_LABELS[g]).join(", ")} · {city || "Johannesburg"}
                 </p>
                 <p className="mt-2 text-[11px] text-charcoal-light/60">
-                  Based on {ROOM_DEFAULT_SQM[roomType as RoomType]}m² default room size · Regional rates applied · For planning purposes only
+                  Rough number, based on a typical {ROOM_DEFAULT_SQM[roomType as RoomType]}m² room and your city&apos;s rates. The full plan tightens this up.
                 </p>
               </div>
             )}

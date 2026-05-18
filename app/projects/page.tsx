@@ -108,7 +108,7 @@ export default function ProjectsDashboard() {
             <div>
               <p className="eyebrow mb-2">My Plans</p>
               <h1 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">
-                Your renovations, planned properly
+                Every room you&apos;ve sorted.
               </h1>
             </div>
             <Link href="/projects/new" className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-petrol-dark px-4 py-2.5 text-sm font-semibold text-white hover:bg-petrol-mid">
@@ -167,12 +167,12 @@ export default function ProjectsDashboard() {
                   <Home className="h-7 w-7 text-charcoal-light/40" />
                 </div>
                 <p className="text-lg font-semibold text-charcoal">
-                  {filter === "all" ? "Nothing here yet" : `No ${STATUS_LABELS[filter as ProjectStatus].toLowerCase()} plans`}
+                  {filter === "all" ? "No plans yet." : `Nothing ${STATUS_LABELS[filter as ProjectStatus].toLowerCase()}.`}
                 </p>
-                <p className="mt-2 max-w-xs text-sm leading-6 text-charcoal-light">
+                <p className="mt-2 max-w-sm text-sm leading-6 text-charcoal-light">
                   {filter === "all"
-                    ? "Your first plan takes about three minutes. It could save you thousands."
-                    : "Try a different filter above."}
+                    ? "Three minutes from now you could have a Rand range, a risk list, and a contractor brief ready to send."
+                    : "Try a different filter — or start fresh."}
                 </p>
                 {filter === "all" && (
                   <Link href="/projects/new" className="mt-6 inline-flex items-center rounded-2xl bg-petrol-dark px-5 py-3 text-sm font-semibold text-white hover:bg-petrol-mid">
