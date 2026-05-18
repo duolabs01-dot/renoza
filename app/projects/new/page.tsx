@@ -118,6 +118,33 @@ function NewProjectForm() {
     });
   }, [searchParams]);
 
+  // Pre-fill from BallparkEstimator URL params (?room=&goals=&city=)
+  useEffect(() => {
+    const eid = searchParams.get("edit");
+    if (eid) return; // edit mode takes precedence
+    const roomParam = searchParams.get("room") as RoomType | null;
+    const goalsParam = searchParams.get("goals");
+    const cityParam = searchParams.get("city");
+    if (!roomParam && !goalsParam && !cityParam) return;
+
+    queueMicrotask(() => {
+      if (roomParam && ROOM_TYPES.includes(roomParam)) {
+        setRoomType(roomParam);
+        setName((prev) => prev || `${ROOM_TYPE_LABELS[roomParam]} renovation`);
+      }
+      if (goalsParam) {
+        const parsed = goalsParam
+          .split(",")
+          .filter((g) => GOAL_OPTIONS.includes(g as RenovationGoal)) as RenovationGoal[];
+        if (parsed.length > 0) setGoals(parsed);
+      }
+      if (cityParam) setLocation(decodeURIComponent(cityParam));
+      // If room + goals are pre-filled, skip to step 1 (Room details)
+      if (roomParam && goalsParam) setStep(1);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Cycle loading messages
   useEffect(() => {
     if (!submitting) return;

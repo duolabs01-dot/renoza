@@ -13,6 +13,7 @@ const links = [
   { href: "/projects/new", label: "New Plan" },
   { href: "/quote-review", label: "Quote Review" },
   { href: "/quote-comparison", label: "Compare Quotes" },
+  { href: "/contractors", label: "Contractors" },
 ];
 
 export default function Nav() {

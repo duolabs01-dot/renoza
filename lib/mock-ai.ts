@@ -2,71 +2,11 @@ import type {
   ProjectInput, RenovationPlan, QuoteReview,
   QuoteComparisonInput, QuoteComparison, SavedProject,
 } from "./types";
-import { ROOM_TYPE_LABELS, BUDGET_LABELS, GOAL_LABELS } from "./types";
-
-// Swap these functions for real Claude API calls (server actions) when ready.
+import { calculatePlan, buildFallbackNarrative } from "./pricing";
 
 export function generateRenovationPlan(input: ProjectInput): RenovationPlan {
-  const roomLabel = ROOM_TYPE_LABELS[input.room_type] || input.room_type;
-
-  return {
-    room_summary: `This is a ${roomLabel.toLowerCase()} in ${input.location}. Based on the selected budget of ${BUDGET_LABELS[input.budget_range]} and your goals, this plan focuses on practical, cost-effective improvements suited to the South African market. The approximate room size of ${input.room_size} has been considered in the estimates below.`,
-    recommended_approach: `Start with any damp, mould, or structural issues before cosmetic work — these are always hidden costs that grow if ignored. Once the room is structurally sound, prioritise painting and flooring as they deliver the biggest visual return for the budget. Electrical and plumbing work should only be done by registered tradespeople to maintain compliance certificates.`,
-    budget_realism: `Your selected budget is realistic for targeted improvements but may not cover a full makeover in a single phase. Consider phasing the work — address structural and damp issues first, then cosmetics. Labour typically accounts for 40–60% of renovation costs in South Africa.`,
-    work_items: [
-      { category: "Surface Preparation", description: "Filling cracks, sanding, cleaning walls. Skimming if needed.", estimated_cost: "R800 – R2,500", low: 800, high: 2500 },
-      { category: "Interior Paint", description: "Two coats on all walls and ceiling. Good quality mid-range paint (Plascon, Dulux).", estimated_cost: "R3,500 – R8,000", low: 3500, high: 8000 },
-      { category: "Flooring", description: "Vinyl planks or laminate. Includes adhesive, underlay, and skirting replacement.", estimated_cost: "R6,000 – R18,000", low: 6000, high: 18000 },
-      { category: "Lighting", description: "Replace fittings with LED downlights or pendants. Basic electrical point changes.", estimated_cost: "R2,000 – R6,000", low: 2000, high: 6000 },
-    ],
-    materials_list: [
-      "Plascon Velvaglo or equivalent (10–20L)",
-      "Primer / undercoat",
-      "Crack filler and sealant",
-      "Sandpaper (coarse and fine)",
-      "Vinyl or laminate flooring boards",
-      "Floor adhesive or click-lock system",
-      "Skirting boards",
-      "LED light fittings",
-      "Paintbrushes, rollers, drop sheets",
-      "Masking tape",
-    ],
-    labour_categories: [
-      "Painter (walls and ceiling)",
-      "Flooring installer",
-      "Electrician (for fitting changes)",
-      "General labourer (prep and cleanup)",
-    ],
-    estimated_cost_range: "R12,000 – R34,500",
-    cost_low: 12000,
-    cost_high: 34500,
-    budget_max: 50000,
-    risks_and_hidden_costs: [
-      "Damp or rising moisture behind walls — inspect before tiling or painting.",
-      "Old or non-compliant electrical wiring — may require full inspection and CoC at extra cost.",
-      "Rotting or uneven subfloor — may need levelling before flooring.",
-      "Hidden plumbing leaks — always pressure-test before closing up walls.",
-      "Asbestos in older homes (pre-1990s) — requires specialist removal.",
-      "Material price fluctuations — confirm prices before accepting any quote.",
-    ],
-    questions_for_contractor: [
-      "Are you registered with the NHBRC or relevant trade association?",
-      "Do you carry public liability insurance?",
-      "Will you provide a written itemised quote with labour and materials listed separately?",
-      "What deposit do you require, and what is the payment schedule?",
-      "How long will the work take, and what happens if it runs over?",
-      "Will electrical work include a Certificate of Compliance?",
-      "Who is responsible for sourcing materials — you or me?",
-      "What guarantee do you offer on your workmanship?",
-    ],
-    whatsapp_brief: `Hi, I'm looking for a quote for a ${roomLabel.toLowerCase()} renovation in ${input.location}.\n\n*Scope of work:*\n- ${input.goals.map((g) => GOAL_LABELS[g] || g).join("\n- ")}\n\n*Room size:* ${input.room_size}\n*Budget:* ${BUDGET_LABELS[input.budget_range]}\n*Ownership:* ${input.ownership_type === "own" ? "Own property" : "Renting — landlord approval obtained"}\n\nPlease provide an itemised quote with labour and materials listed separately. I'd also like to confirm your NHBRC registration and whether electrical work will include a Certificate of Compliance.\n\nWhen are you available for a site visit?`,
-    timeline_phases: [
-      { name: "Prep", duration: "1–2 days", pct: 15 },
-      { name: "Structural", duration: "2–3 days", pct: 30 },
-      { name: "Cosmetic", duration: "3–5 days", pct: 40 },
-      { name: "Finishing", duration: "1–2 days", pct: 15 },
-    ],
-  };
+  const calculated = calculatePlan(input);
+  return { ...calculated, ...buildFallbackNarrative(input, calculated) };
 }
 
 export function reviewContractorQuote(quoteText: string): QuoteReview {

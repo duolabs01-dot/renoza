@@ -1,28 +1,13 @@
 "use client";
 
 import type { ProjectInput, RenovationGoal, RenovationPlan } from "@/lib/types";
+import { parseDimensions } from "@/lib/pricing";
 
 interface Props {
   input: ProjectInput;
   plan?: RenovationPlan;
   showFengShui?: boolean;
   compassDirection?: string;
-}
-
-function parseDimensions(roomSize: string): { w: number; h: number } {
-  const s = roomSize.toLowerCase().replace(/approx\.?|approximately|circa|~\s*/g, "").trim();
-  const m2 = s.match(/(\d+(?:[.,]\d+)?)\s*(?:m(?:eter|etre)?s?)?\s*[x×*]|by\s+(\d+(?:[.,]\d+)?)/);
-  // Try "NxM" / "N x M" / "N by M"
-  const pair = s.match(/(\d+(?:[.,]\d+)?)\s*(?:m(?:eter|etre)?s?)?\s*(?:x|×|\*|by)\s*(\d+(?:[.,]\d+)?)/);
-  if (pair) return { w: parseFloat(pair[1].replace(",", ".")), h: parseFloat(pair[2].replace(",", ".")) };
-  // Try area: "20m²", "20 sqm", "20m2"
-  const area = s.match(/(\d+(?:[.,]\d+)?)\s*(?:m[²2]|sqm|sq\.?\s*m)/);
-  if (area) {
-    const side = Math.sqrt(parseFloat(area[1].replace(",", ".")));
-    return { w: Math.round(side * 10) / 10, h: Math.round(side * 10) / 10 };
-  }
-  void m2; // suppress unused warning
-  return { w: 5, h: 4 };
 }
 
 const GOAL_FILLS: Partial<Record<RenovationGoal, string>> = {
@@ -54,7 +39,7 @@ const BAGUA: [string, string][] = [
 ];
 
 export default function ScopeDiagram({ input, showFengShui, compassDirection }: Props) {
-  const dims = parseDimensions(input.room_size);
+  const dims = parseDimensions(input.room_size ?? "");
   const goals = input.goals;
   const hasDemolition = goals.some((g) => DEMOLITION_GOALS.includes(g));
 
@@ -185,7 +170,7 @@ export default function ScopeDiagram({ input, showFengShui, compassDirection }: 
         <line x1={rX + rW} y1={rY + rH + 4} x2={rX + rW} y2={rY + rH + 16} stroke="#999" strokeWidth="1" />
         <line x1={rX}      y1={rY + rH + 10} x2={rX + rW} y2={rY + rH + 10} stroke="#999" strokeWidth="1" />
         <text x={rX + rW / 2} y={rY + rH + 26} textAnchor="middle" fontSize="11" fill="#666" fontFamily="inherit">
-          {dims.w}m
+          {dims.approximate ? "approx. " : ""}{dims.w}m
         </text>
 
         {/* Height dimension (left of room) */}

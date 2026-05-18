@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Camera, CheckCircle2, ChevronDown, FileSearch, Hammer, ShieldCheck, Sparkles } from "lucide-react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import AnimatedSection from "@/components/AnimatedSection";
+import BallparkEstimator from "@/components/BallparkEstimator";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import CountUpDisplay from "@/components/CountUpDisplay";
 import SamplePlanPreview from "@/components/SamplePlanPreview";
@@ -97,6 +98,23 @@ export default function HomePage() {
               <p className="mt-2 text-sm font-semibold text-charcoal-light">{stat.label}</p>
             </AnimatedSection>
           ))}
+        </div>
+      </section>
+
+      <section className="bg-canvas py-20">
+        <div className="container-page">
+          <AnimatedSection className="mb-10 max-w-2xl">
+            <p className="eyebrow mb-3">No sign-up needed</p>
+            <h2 className="font-display text-4xl font-semibold text-charcoal sm:text-5xl">
+              What would your renovation cost right now?
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-charcoal-light">
+              Pick the room, pick the goals, get a Rand range. Takes 30 seconds.
+            </p>
+          </AnimatedSection>
+          <AnimatedSection delay={0.08}>
+            <BallparkEstimator />
+          </AnimatedSection>
         </div>
       </section>
 

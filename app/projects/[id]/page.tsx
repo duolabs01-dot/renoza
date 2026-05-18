@@ -11,6 +11,7 @@ import { getProject, deleteProject } from "@/lib/storage";
 import { BUDGET_LABELS, ROOM_TYPE_LABELS } from "@/lib/types";
 import type { StoredProject } from "@/lib/types";
 import { SPONSOR_PRODUCTS, FEATURED_CONTRACTORS } from "@/lib/sponsors";
+import { filterContractors } from "@/lib/contractors";
 import AnimatedSection from "@/components/AnimatedSection";
 import SectionCard from "@/components/SectionCard";
 import BudgetGauge from "@/components/BudgetGauge";
@@ -20,10 +21,14 @@ import TimelinePlayer from "@/components/TimelinePlayer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
 import SponsoredCard from "@/components/SponsoredCard";
 import ContractorTile from "@/components/ContractorTile";
+import ContractorCard from "@/components/ContractorCard";
 import CopyButton from "@/components/CopyButton";
 import ScopeDiagram from "@/components/ScopeDiagram";
 import FengShuiCard from "@/components/FengShuiCard";
+import SnaggingList from "@/components/SnaggingList";
+import DepositShield from "@/components/DepositShield";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 const SECTIONS = [
   { id: "summary",         label: "Summary" },
@@ -36,6 +41,9 @@ const SECTIONS = [
   { id: "timeline",        label: "Timeline" },
   { id: "risks",           label: "Risks" },
   { id: "questions",       label: "Questions" },
+  { id: "snagging",        label: "Snagging" },
+  { id: "contractors",     label: "Contractors" },
+  { id: "payment",         label: "Payment" },
   { id: "spatial-harmony", label: "Harmony" }, // only shown when plan.feng_shui exists
 ];
 
@@ -212,6 +220,7 @@ export default function ProjectResultPage() {
           <div className="flex gap-1 px-4 py-2">
             {SECTIONS
               .filter((s) => s.id !== "spatial-harmony" || !!plan.feng_shui)
+              .filter((s) => s.id !== "contractors")
               .map((s) => (
                 <button
                   key={s.id}
@@ -245,6 +254,7 @@ export default function ProjectResultPage() {
           <div className="flex flex-col gap-0.5">
             {SECTIONS
               .filter((s) => s.id !== "spatial-harmony" || !!plan.feng_shui)
+              .filter((s) => s.id !== "contractors")
               .map((s) => (
                 <button
                   key={s.id}
@@ -429,6 +439,39 @@ export default function ProjectResultPage() {
                   </li>
                 ))}
               </ol>
+            </SectionCard>
+          </section>
+
+          {/* Snagging checklist */}
+          <section id="snagging" ref={(el) => { sectionRefs.current["snagging"] = el; }} className="print-avoid-break">
+            <SectionCard title="Snagging Checklist" kicker="Sign off before paying the final invoice">
+              <SnaggingList goals={input.goals} roomType={input.room_type} projectId={id} />
+            </SectionCard>
+          </section>
+
+          {/* Contractor directory — filtered by goals + location */}
+          <section id="contractors" ref={(el) => { sectionRefs.current["contractors"] = el; }} className="print-avoid-break no-print">
+            <SectionCard title="Find a Contractor" kicker="Demo profiles — matched to your goals">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {filterContractors(input.location, input.goals).map((c) => (
+                  <ContractorCard
+                    key={c.id}
+                    contractor={c}
+                    whatsappBrief={plan.whatsapp_brief}
+                    highlightGoals={input.goals}
+                  />
+                ))}
+              </div>
+              <Link href="/contractors" className="mt-4 inline-block text-sm font-semibold text-petrol-dark hover:underline">
+                Browse all contractors →
+              </Link>
+            </SectionCard>
+          </section>
+
+          {/* Payment Schedule */}
+          <section id="payment" ref={(el) => { sectionRefs.current["payment"] = el; }} className="print-avoid-break">
+            <SectionCard title="Payment Schedule" kicker="Plan your milestone payments">
+              <DepositShield plan={plan} input={input} projectId={id} />
             </SectionCard>
           </section>
 

@@ -60,6 +60,15 @@ export const renovationPlanSchema = z.object({
   floor_plan_notes: z.string().optional(),
 });
 
+export const narrativeSchema = z.object({
+  room_summary: z.string(),
+  recommended_approach: z.string(),
+  budget_realism: z.string(),
+  whatsapp_brief: z.string(),
+  feng_shui: fengShuiAnalysisSchema.optional(),
+  floor_plan_notes: z.string().optional(),
+});
+
 export const quoteReviewSchema = z.object({
   quote_summary: z.string(),
   missing_details: z.array(z.string()).min(3).max(10),

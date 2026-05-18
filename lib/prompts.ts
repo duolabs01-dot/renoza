@@ -1,5 +1,6 @@
 import type { ProjectInput } from "./types";
 import { BUDGET_LABELS, GOAL_LABELS, ROOM_TYPE_LABELS } from "./types";
+import type { calculatePlan } from "./pricing";
 
 export function buildPlanPrompt(input: ProjectInput): string {
   const goals = input.goals.map((g) => GOAL_LABELS[g] || g).join(", ");
@@ -68,6 +69,70 @@ Keep the tone warm and practical — helpful for believers and non-believers ali
   }
 
   prompt += `\n\nGenerate the renovation plan now.`;
+  return prompt;
+}
+
+export function buildNarrativePrompt(
+  input: ProjectInput,
+  calculated: ReturnType<typeof calculatePlan>,
+): string {
+  const roomLabel = ROOM_TYPE_LABELS[input.room_type] ?? input.room_type;
+  const goals = input.goals.map((g) => GOAL_LABELS[g] ?? g).join(", ");
+  const budgetLabel = BUDGET_LABELS[input.budget_range] ?? input.budget_range;
+
+  let prompt = `You are a South African renovation consultant. Write ONLY the narrative fields below — all numeric estimates have already been calculated by a separate engine.
+
+PROJECT:
+- Room: ${roomLabel} in ${input.location ?? "South Africa"}
+- Goals: ${goals}
+- Budget: ${budgetLabel}
+- Room size: ${input.room_size ?? "not specified"}
+- Calculated cost range: ${calculated.estimated_cost_range}
+- Key work items: ${calculated.work_items.slice(0, 5).map(w => w.category).join(", ")}
+
+INSTRUCTIONS:
+- Do NOT invent, change, or dispute any numbers. The cost range is ${calculated.estimated_cost_range} — reference it as-is.
+- Write in plain, friendly South African English. No jargon.
+- room_summary: 2 sentences. What is this renovation covering and what is the key context.
+- recommended_approach: 3 sentences. What to do first and why (prioritise structural before cosmetic, etc.).
+- budget_realism: 2 sentences. Honest assessment — does the budget fit the scope? Be direct.
+- whatsapp_brief: A ready-to-send WhatsApp message to a contractor. Max 180 words. Include room, goals, size, budget, and ask for an itemised quote with labour and materials separate. Use *asterisks* for section headers. End by asking for availability and timeline. SA-friendly tone.`;
+
+  if (input.floor_plan?.analysis) {
+    const a = input.floor_plan.analysis;
+    prompt += `
+
+FLOOR PLAN CONTEXT (from uploaded drawing):
+- Dimensions: ${a.estimated_dimensions}
+- Features: ${a.visible_features.join(", ")}
+- Concerns: ${a.structural_concerns.join(", ") || "none"}
+- AI notes: ${a.ai_notes}
+Include a floor_plan_notes string (1–2 sentences) summarising what the drawing revealed. Keep it grounded — only state what the drawing clearly shows.`;
+  } else {
+    prompt += `\nDo NOT include a floor_plan_notes field.`;
+  }
+
+  if (input.include_feng_shui) {
+    const dir = input.compass_direction && input.compass_direction !== "unknown"
+      ? input.compass_direction
+      : "not provided — use general principles";
+    prompt += `
+
+SPATIAL HARMONY / FENG SHUI:
+Include a feng_shui object with practical guidance framed around feng shui principles for a ${roomLabel}.
+- bagua_area: which bagua area best fits this room type
+- dominant_element: Wood, Fire, Earth, Metal, or Water
+- energy_assessment: Practical, warm, 2 sentences on chi flow for this renovation scope
+- colour_recommendations: 3–5 colours with accurate hex codes and reasons
+- placement_tips: 3–5 practical layout tips
+- things_to_avoid: 2–4 avoid items
+- favourable_directions: array of compass direction strings
+- compass_notes: Guidance based on compass direction "${dir}"`;
+  } else {
+    prompt += `\nDo NOT include a feng_shui field.`;
+  }
+
+  prompt += `\n\nWrite the narrative fields now.`;
   return prompt;
 }
 
