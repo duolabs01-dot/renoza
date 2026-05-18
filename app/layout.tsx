@@ -16,10 +16,26 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Renoza - AI Renovation Planner for South African Homes",
+  metadataBase: new URL("https://renoza.vercel.app"),
+  title: "Renoza — Know what your renovation should cost",
   description:
-    "From room photo to fair quote. Renoza helps South African homeowners plan renovations, check contractor quotes, and build WhatsApp-ready briefs.",
+    "Built for South African homeowners. Get a Rand range, spot the red flags, and send any contractor a WhatsApp brief that puts you in charge — before anyone asks for a deposit.",
   icons: { icon: "/favicon.svg" },
+  openGraph: {
+    title: "Know what your renovation should cost. Before the contractor does.",
+    description:
+      "Real Rand ranges, red flag detection, and a WhatsApp brief that puts SA homeowners in charge — before anyone asks for a deposit.",
+    url: "https://renoza.vercel.app",
+    siteName: "Renoza",
+    locale: "en_ZA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Know what your renovation should cost. Before the contractor does.",
+    description:
+      "Real Rand ranges, red flag detection, and a WhatsApp brief that puts SA homeowners in charge.",
+  },
 };
 
 export default function RootLayout({
@@ -32,8 +48,8 @@ export default function RootLayout({
       <body>
         <Nav />
         {children}
-        <footer className="border-t border-charcoal/10 bg-canvas px-6 py-8 text-center text-xs font-medium text-charcoal-light">
-          Renoza — AI renovation planning for South African homes. Prices are estimates only. Always get at least two itemised quotes.
+        <footer className="border-t border-charcoal/10 bg-canvas px-6 py-8 text-center text-xs leading-6 font-medium text-charcoal-light">
+          Renoza — built in South Africa, for South African homeowners. Numbers here are estimates, not quotes. Always get two itemised quotes from registered contractors before signing anything.
         </footer>
       </body>
     </html>

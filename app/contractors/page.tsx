@@ -36,11 +36,10 @@ export default function ContractorsPage() {
             Demo profiles
           </div>
           <h1 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">
-            Find a contractor for your renovation
+            Find someone to do the work.
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-charcoal-light">
-            These are sample contractor profiles for demonstration purposes. They are not real verified businesses.
-            Always do your own due diligence before hiring any contractor.
+            These are demo profiles, not real businesses — they&apos;re here to show what a properly-filtered contractor list looks like. When you find a real one, check their NHBRC registration, ask for references, and run their quote past our review tool before you commit.
           </p>
         </AnimatedSection>
 
@@ -91,8 +90,8 @@ export default function ContractorsPage() {
           ) : (
             <AnimatedSection delay={0.05}>
               <div className="flex flex-col items-center justify-center py-16 text-center">
-                <p className="text-lg font-semibold text-charcoal">No contractors found</p>
-                <p className="mt-2 text-sm text-charcoal-light">Try a different province or specialty filter.</p>
+                <p className="text-lg font-semibold text-charcoal">No matches.</p>
+                <p className="mt-2 text-sm text-charcoal-light">Try a different province or specialty — or clear the filters and start fresh.</p>
                 <button
                   onClick={() => { setProvince("all"); setGoalFilter("all"); }}
                   className="mt-4 rounded-full border border-charcoal/10 px-5 py-2 text-sm font-semibold text-charcoal hover:bg-canvas"
