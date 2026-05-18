@@ -565,14 +565,21 @@ export function buildFallbackNarrative(
     ? `Your selected budget of ${BUDGET_LABELS[input.budget_range ?? "15k-50k"]} is lower than the estimated cost range of ${calculated.estimated_cost_range}. Consider phasing the work or reducing scope — address structural and damp issues first.`
     : `Your budget of ${BUDGET_LABELS[input.budget_range ?? "15k-50k"]} aligns with the estimated cost range of ${calculated.estimated_cost_range}. Allow 10–15% contingency for hidden costs that are common in South African renovations.`;
 
-  const whatsapp_brief = `Hi, I'm looking for a quote on a ${roomLabel.toLowerCase()} renovation in ${input.location ?? "South Africa"}.
+  const hasElectrical = (input.goals ?? []).includes("electrical");
+  const whatsapp_brief = `Hi, looking for a quote on a ${roomLabel.toLowerCase()} renovation in ${input.location ?? "South Africa"}.
 
 *Scope:* ${goalsLabel}
 *Room size:* ${sqmStr}
 *Budget:* ${BUDGET_LABELS[input.budget_range ?? "15k-50k"]}
-*Estimated cost range:* ${calculated.estimated_cost_range}
 
-Please provide an itemised quote with labour and materials listed separately. I'd also like to know your availability and typical timeline for this type of work.`;
+A few things I'll need in the quote:
+• Labour and materials itemised separately (not lumped together)
+• Who supplies the materials — you or me? If you, please show your markup
+• Payment terms — deposit capped at 30%, balance against milestones${hasElectrical ? "\n• Certificate of Compliance (CoC) included for the electrical work" : ""}
+• Your NHBRC number or trade body registration
+• Workmanship guarantee period in writing
+
+Please also share your earliest start date and how long the job typically takes. Happy to send photos of the space if it helps.`;
 
   return { room_summary, recommended_approach, budget_realism, whatsapp_brief };
 }

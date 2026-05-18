@@ -49,7 +49,7 @@ export default function QuoteReviewPage() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-petrol-light">Quote review</p>
             <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-7xl">Is this quote fair?</h1>
             <p className="mt-4 max-w-lg text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
-              Paste a WhatsApp message, email, or typed list. Renoza looks for missing details, risky deposit terms, and vague scope language.
+              Paste the WhatsApp, email, or scribbled list a contractor sent you. We&apos;ll show you what&apos;s missing, what to push back on, and the exact questions to send before anyone touches your deposit.
             </p>
           </motion.div>
 
@@ -71,7 +71,7 @@ export default function QuoteReviewPage() {
               />
             </div>
             <div className="mt-3 flex flex-col gap-3 sm:mt-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs font-medium leading-5 text-charcoal-light">Tip: include payment terms, timelines, line items, and contractor messages.</p>
+              <p className="text-xs font-medium leading-5 text-charcoal-light">Paste the whole thing — payment terms, line items, even the small talk. Context matters.</p>
               <button disabled={!quoteText.trim() || loading} className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-clay px-5 py-3.5 text-sm font-bold text-white transition hover:bg-clay-highlight disabled:bg-canvas-dark disabled:text-charcoal-light sm:w-auto sm:py-3">
                 Review quote <ArrowRight className="h-4 w-4" />
               </button>
@@ -107,7 +107,7 @@ export default function QuoteReviewPage() {
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow mb-3">Review complete</p>
-              <h2 className="font-display text-4xl font-semibold text-charcoal">What to clarify before you pay.</h2>
+              <h2 className="font-display text-4xl font-semibold text-charcoal">What to sort out before any money changes hands.</h2>
             </div>
             <button
               onClick={() => {
@@ -130,7 +130,7 @@ export default function QuoteReviewPage() {
               <p className="mt-5 text-sm leading-7 text-charcoal-light">{review.fairness_estimate}</p>
             </SectionCard>
 
-            <SectionCard title="Red flags" kicker="Protect the deposit" className="lg:col-span-2">
+            <SectionCard title="Red flags" kicker="What would catch you out" className="lg:col-span-2">
               <div className="grid gap-3 md:grid-cols-2">
                 {review.red_flags.map((flag, index) => (
                   <motion.div
@@ -148,7 +148,7 @@ export default function QuoteReviewPage() {
               </div>
             </SectionCard>
 
-            <SectionCard title="Missing details" kicker="Ask for specifics">
+            <SectionCard title="What's missing" kicker="Should be in the quote, isn't">
               <ul className="space-y-3">
                 {review.missing_details.map((detail) => (
                   <li key={detail} className="border-l-2 border-canvas-dark pl-3 text-sm leading-6 text-charcoal-light">{detail}</li>
@@ -156,7 +156,7 @@ export default function QuoteReviewPage() {
               </ul>
             </SectionCard>
 
-            <SectionCard title="Questions to send" kicker="Before paying">
+            <SectionCard title="Questions to send back" kicker="Before you commit">
               <ol className="space-y-3">
                 {review.questions_to_ask.map((question, index) => (
                   <li key={question} className="flex gap-3 text-sm leading-6 text-charcoal-light">
@@ -179,9 +179,9 @@ export default function QuoteReviewPage() {
           </div>
 
           <div className="mt-8 rounded-[28px] bg-petrol-dark p-6 text-white sm:flex sm:items-center sm:justify-between">
-            <p className="font-display text-2xl font-semibold">Need a cleaner brief first?</p>
+            <p className="font-display text-2xl font-semibold">Want to brief the next one properly?</p>
             <Link href="/projects/new" className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-bold text-petrol-dark sm:mt-0">
-              Plan the renovation <ArrowRight className="h-4 w-4" />
+              Build a plan first <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </section>

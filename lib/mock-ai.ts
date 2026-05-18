@@ -174,5 +174,5 @@ export const SAMPLE_PLAN_PREVIEW = {
     "Electrical panel may need upgrading for additional appliance circuits.",
     "Cupboard replacement costs escalate quickly — consider refacing vs full replacement.",
   ],
-  whatsapp_snippet: "Hi, I'm looking for a quote for a kitchen renovation in Cape Town.\n\n*Scope:* Paint · Flooring · Lighting · Cupboards\n*Budget:* R15,000 – R50,000\n\nPlease provide an itemised quote with labour and materials listed separately…",
+  whatsapp_snippet: "Hi, looking for a quote on a kitchen renovation in Cape Town.\n\n*Scope:* Paint · Flooring · Lighting · Cupboards\n*Budget:* R15,000 – R50,000\n\nA few things I'll need in the quote:\n• Labour and materials itemised separately\n• Deposit capped at 30%, balance against milestones\n• Your NHBRC number or trade body registration\n• Workmanship guarantee in writing\n\nHappy to send photos of the space…",
 };

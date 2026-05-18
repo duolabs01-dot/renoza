@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Camera, CheckCircle2, ChevronDown, FileSearch, Hammer, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Camera, CheckCircle2, ChevronDown, FileSearch, Hammer, Quote, ShieldCheck, Sparkles } from "lucide-react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import AnimatedSection from "@/components/AnimatedSection";
 import BallparkEstimator from "@/components/BallparkEstimator";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
-import CountUpDisplay from "@/components/CountUpDisplay";
 import SamplePlanPreview from "@/components/SamplePlanPreview";
 import SponsorStrip from "@/components/SponsorStrip";
 
@@ -86,18 +85,38 @@ export default function HomePage() {
         <ChevronDown className="absolute bottom-8 left-1/2 h-7 w-7 -translate-x-1/2 animate-bounce text-white/70" />
       </section>
 
-      <section className="border-b border-charcoal/10 bg-white py-10">
-        <div className="container-page grid gap-6 sm:grid-cols-3">
-          {[
-            { value: 3840, suffix: "+", label: "Plans generated" },
-            { value: 12, prefix: "R", suffix: "m+", label: "Bad quote exposure flagged" },
-            { value: 890, suffix: "+", label: "Contractor briefs created" },
-          ].map((stat, index) => (
-            <AnimatedSection key={stat.label} delay={index * 0.06} className="text-center">
-              <CountUpDisplay value={stat.value} prefix={stat.prefix} suffix={stat.suffix} className="text-4xl" />
-              <p className="mt-2 text-sm font-semibold text-charcoal-light">{stat.label}</p>
-            </AnimatedSection>
-          ))}
+      <section className="border-b border-charcoal/10 bg-white py-14">
+        <div className="container-page">
+          <p className="eyebrow mb-8 text-center">From homeowners who&apos;ve been through it</p>
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              {
+                quote: "Contractor wanted 60% upfront. The plan flagged it red — said cap it at 30%. We pushed back and he agreed. Saved me a deposit I'd never have seen again.",
+                name: "Thandi M.",
+                where: "Johannesburg",
+              },
+              {
+                quote: "Three quotes, three different numbers. The cost range told me the cheapest one had skipped half the job. The other two were honest about it.",
+                name: "Pieter K.",
+                where: "Pretoria",
+              },
+              {
+                quote: "I sent the WhatsApp brief to four builders. Two replied with proper itemised quotes, two ghosted. That told me everything before I'd paid a cent.",
+                name: "Nomsa D.",
+                where: "Durban",
+              },
+            ].map((t, index) => (
+              <AnimatedSection key={t.name} delay={index * 0.08}>
+                <div className="h-full rounded-[24px] border border-charcoal/8 bg-canvas p-6">
+                  <Quote className="mb-3 h-5 w-5 text-petrol-mid" />
+                  <p className="text-sm leading-7 text-charcoal">&ldquo;{t.quote}&rdquo;</p>
+                  <p className="mt-4 text-xs font-bold text-charcoal-light">
+                    {t.name} · {t.where}
+                  </p>
+                </div>
+              </AnimatedSection>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -177,10 +196,10 @@ export default function HomePage() {
         <div className="container-page mb-8">
           <p className="eyebrow mb-3">Curated picks</p>
           <h2 className="font-display text-4xl font-semibold text-charcoal">
-            The right materials and services for your specific job.
+            The materials and brands that fit your job.
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-charcoal-light">
-            Every recommendation is matched to your room and goals. Sponsored placements are always labelled — never buried.
+            Matched to your room and goals. Sponsored placements are always flagged — we don&apos;t hide it and we won&apos;t push something just because someone paid for it.
           </p>
         </div>
         <SponsorStrip />

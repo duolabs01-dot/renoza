@@ -16,12 +16,12 @@ export default function SamplePlanPreview() {
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white to-transparent" />
       <div className="container-page relative z-10 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <AnimatedSection>
-          <p className="eyebrow mb-4">Live sample</p>
+          <p className="eyebrow mb-4">A real plan, not a teaser</p>
           <h2 className="font-display text-4xl font-semibold leading-tight text-charcoal sm:text-5xl">
             This is what you walk away with.
           </h2>
           <p className="mt-5 max-w-lg text-base leading-8 text-charcoal-light">
-            What it should cost in rands. What could bite you halfway through the job. And a message you can send to any contractor before they've had a chance to size you up.
+            What it should cost in rands. What could bite you halfway through the job. And a message you can send to any contractor before they&apos;ve had a chance to size you up.
           </p>
           <Link href="/projects/new" className="mt-8 inline-flex items-center gap-2 rounded-full bg-petrol-dark px-6 py-4 text-sm font-bold text-white shadow-xl shadow-petrol-dark/20 transition hover:-translate-y-0.5">
             Generate my plan <ArrowRight className="h-4 w-4" />

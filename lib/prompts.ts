@@ -96,7 +96,7 @@ INSTRUCTIONS:
 - room_summary: 2 sentences. What is this renovation covering and what is the key context.
 - recommended_approach: 3 sentences. What to do first and why (prioritise structural before cosmetic, etc.).
 - budget_realism: 2 sentences. Honest assessment — does the budget fit the scope? Be direct.
-- whatsapp_brief: A ready-to-send WhatsApp message to a contractor. Max 180 words. Include room, goals, size, budget, and ask for an itemised quote with labour and materials separate. Use *asterisks* for section headers. End by asking for availability and timeline. SA-friendly tone.`;
+- whatsapp_brief: A ready-to-send WhatsApp message to a contractor. Max 220 words. Open casually ("Hi, looking for a quote on…"). Use *asterisks* for section headers (Scope / Room size / Budget). Then a bulleted list of asks that MUST include: labour and materials itemised separately; who supplies materials (and markup if contractor does); deposit capped at 30% with balance against milestones; NHBRC or trade body registration number; workmanship guarantee in writing; and Certificate of Compliance (CoC) ONLY IF electrical work is in scope. Close by asking for earliest start date and typical timeline. Tone: a South African homeowner who's done their homework — direct but not adversarial.`;
 
   if (input.floor_plan?.analysis) {
     const a = input.floor_plan.analysis;
