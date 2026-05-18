@@ -546,6 +546,49 @@ function buildTimeline(
 
 // ─── Fallback narrative (no AI required) ─────────────────────────────────────
 
+function buildRoomSummary(input: ProjectInput, sqmStr: string): string {
+  const room = (ROOM_TYPE_LABELS[input.room_type] ?? "room").toLowerCase();
+  const location = input.location ?? "South Africa";
+  const goals = new Set(input.goals ?? []);
+  const opener = `Your ${room} in ${location} — ${sqmStr}.`;
+
+  if (goals.has("full-makeover")) {
+    return `${opener} Full strip-out: demolition, wet works, finishes, fit-off. The kind of job that needs proper project management, not just a builder with a bakkie.`;
+  }
+  if (goals.has("damp-repair")) {
+    return `${opener} Damp jobs live and die by the diagnosis — fix the source, not just the wall, or it'll be back inside a year.`;
+  }
+  if (goals.has("cupboards")) {
+    return `${opener} Cupboards are usually the schedule driver — order them first, then book everyone else around the lead time.`;
+  }
+  if (goals.has("plumbing") || goals.has("electrical")) {
+    return `${opener} Wet works and wiring before any finishes — every change after walls close up costs three times more.`;
+  }
+  if (goals.has("prepare-rental-sale")) {
+    const audience = input.ownership_type === "rent" ? "a tenant" : "sale";
+    return `${opener} Prepping it for ${audience} — spend on what an inspector or buyer would actually notice, not what photographs well.`;
+  }
+  if (goals.has("tiling") || goals.has("flooring")) {
+    return `${opener} Floors and surfaces. Half the cost is in the prep no one talks about — substrate, waterproofing, levelling.`;
+  }
+  // paint / lighting only
+  return `${opener} Cosmetic refresh — the kind of job that transforms a room without touching plumbing or electrics. Quick, if the room is sound.`;
+}
+
+function buildBudgetRealism(input: ProjectInput, calculated: CalculatedPlan): string {
+  const budgetLabel = BUDGET_LABELS[input.budget_range ?? "15k-50k"];
+  const budgetMax = BUDGET_RANGE_MAX[input.budget_range ?? "15k-50k"];
+  const range = calculated.estimated_cost_range;
+
+  if (budgetMax < calculated.cost_low) {
+    return `Your ${budgetLabel} budget is below the estimated ${range}. Either drop the nice-to-haves or stretch the budget — pretending the gap will close itself usually costs more in the end. Tackle structural and damp issues first if you have to phase.`;
+  }
+  if (budgetMax < calculated.cost_high) {
+    return `Your ${budgetLabel} budget covers the lower end of ${range}, not the top. If hidden costs come up — and on most SA jobs they do — you'll be making cuts mid-project. Better to trim scope now than mid-build.`;
+  }
+  return `Your ${budgetLabel} budget is comfortable for ${range}. Keep 10–15% of the high end in reserve for the things no one finds until walls open up — old pipes, damp behind cupboards, dodgy wiring.`;
+}
+
 function buildRecommendedApproach(input: ProjectInput): string {
   const goals = new Set(input.goals ?? []);
   const isRental = input.ownership_type === "rent";
@@ -594,15 +637,9 @@ export function buildFallbackNarrative(
   const { sqm, approximate } = parseDimensions(input.room_size ?? "");
   const sqmStr = approximate ? `approximately ${sqm}m²` : `${sqm}m²`;
 
-  const room_summary = `This plan covers a ${roomLabel.toLowerCase()} renovation in ${input.location ?? "South Africa"}, ${sqmStr} in size. The scope includes ${goalsLabel || "general renovation work"} with all estimates in South African Rand.`;
-
+  const room_summary = buildRoomSummary(input, sqmStr);
   const recommended_approach = buildRecommendedApproach(input);
-
-  const budgetMax  = BUDGET_RANGE_MAX[input.budget_range ?? "15k-50k"];
-  const overBudget = calculated.cost_high > budgetMax;
-  const budget_realism = overBudget
-    ? `Your selected budget of ${BUDGET_LABELS[input.budget_range ?? "15k-50k"]} is lower than the estimated cost range of ${calculated.estimated_cost_range}. Consider phasing the work or reducing scope — address structural and damp issues first.`
-    : `Your budget of ${BUDGET_LABELS[input.budget_range ?? "15k-50k"]} aligns with the estimated cost range of ${calculated.estimated_cost_range}. Allow 10–15% contingency for hidden costs that are common in South African renovations.`;
+  const budget_realism = buildBudgetRealism(input, calculated);
 
   const hasElectrical = (input.goals ?? []).includes("electrical");
   const whatsapp_brief = `Hi, looking for a quote on a ${roomLabel.toLowerCase()} renovation in ${input.location ?? "South Africa"}.

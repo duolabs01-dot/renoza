@@ -93,9 +93,9 @@ PROJECT:
 INSTRUCTIONS:
 - Do NOT invent, change, or dispute any numbers. The cost range is ${calculated.estimated_cost_range} — reference it as-is.
 - Write in plain, friendly South African English. No jargon.
-- room_summary: 2 sentences. What is this renovation covering and what is the key context.
+- room_summary: 2 sentences. First sentence states the room, location and size ("Your kitchen in Cape Town — 20m²."). Second sentence characterises the type of job (sequencing-heavy strip-out, diagnosis-heavy damp work, lead-time-driven cupboards, cosmetic refresh, etc.) in one punchy line. Avoid corporate phrases like "This plan covers" or "The scope includes".
 - recommended_approach: 3 sentences. SPECIFIC sequencing advice for THIS combination of goals (not generic "fix structural before cosmetic" boilerplate). If the scope is cosmetic-only, talk about checking the room before painting; if there's wet work, talk about getting it done before finishes; if there are cupboards, talk about lead times. Voice: a South African builder mate explaining what order to do things.
-- budget_realism: 2 sentences. Honest assessment — does the budget fit the scope? Be direct.
+- budget_realism: 2-3 sentences. Honest three-band assessment: (1) below cost_low → tell them to drop scope or stretch budget; (2) between cost_low and cost_high → covers lower end only, hidden costs will force mid-project cuts; (3) above cost_high → comfortable, but keep 10-15% in reserve for things found inside walls (old pipes, damp, dodgy wiring). Be direct, no apologetic phrasing.
 - whatsapp_brief: A ready-to-send WhatsApp message to a contractor. Max 220 words. Open casually ("Hi, looking for a quote on…"). Use *asterisks* for section headers (Scope / Room size / Budget). Then a bulleted list of asks that MUST include: labour and materials itemised separately; who supplies materials (and markup if contractor does); deposit capped at 30% with balance against milestones; NHBRC or trade body registration number; workmanship guarantee in writing; and Certificate of Compliance (CoC) ONLY IF electrical work is in scope. Close by asking for earliest start date and typical timeline. Tone: a South African homeowner who's done their homework — direct but not adversarial.`;
 
   if (input.floor_plan?.analysis) {
