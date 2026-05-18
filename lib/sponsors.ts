@@ -24,6 +24,7 @@ export interface SponsorBrand {
   name: string;
   color: string;
   mark: string;
+  logo?: string;
 }
 
 export const SPONSOR_PRODUCTS: SponsorProduct[] = [
@@ -42,12 +43,12 @@ export const FEATURED_CONTRACTORS: FeaturedContractor[] = [
 ];
 
 export const SPONSOR_BRANDS: SponsorBrand[] = [
-  { name: "Plascon",      color: "#1a4a8a", mark: "PL"  },
-  { name: "CTM",          color: "#c41e3a", mark: "CTM" },
-  { name: "Builders",     color: "#e05c00", mark: "BW"  },
-  { name: "Leroy Merlin", color: "#5a9e1a", mark: "LM"  },
-  { name: "GreenFloors",  color: "#2d7d46", mark: "GF"  },
-  { name: "Italtile",     color: "#2a2a2a", mark: "IT"  },
-  { name: "Dulux",        color: "#003087", mark: "DLX" },
-  { name: "Bright Star",  color: "#d4930a", mark: "BS"  },
+  { name: "Plascon",      color: "#1a4a8a", mark: "PL",  logo: "/logos/plascon.png"      },
+  { name: "CTM",          color: "#c41e3a", mark: "CTM", logo: "/logos/ctm.jpg"           },
+  { name: "Builders",     color: "#e05c00", mark: "BW"                                    },
+  { name: "Leroy Merlin", color: "#5a9e1a", mark: "LM",  logo: "/logos/leroymerlin.svg"   },
+  { name: "GreenFloors",  color: "#2d7d46", mark: "GF"                                    },
+  { name: "Italtile",     color: "#2a2a2a", mark: "IT",  logo: "/logos/italtile.png"      },
+  { name: "Dulux",        color: "#003087", mark: "DLX", logo: "/logos/dulux.png"         },
+  { name: "Bright Star",  color: "#d4930a", mark: "BS"                                    },
 ];
