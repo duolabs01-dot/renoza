@@ -1,53 +1,57 @@
 "use client";
 
-import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useState } from "react";
+
+const BEFORE_URL = "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1400&q=82";
+const AFTER_URL  = "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1400&q=82";
 
 export default function BeforeAfterSlider() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
-  const x = useMotionValue(0);
-  const clip = useTransform(x, (latest) => {
-    const pct = width ? Math.max(18, Math.min(82, ((latest + width / 2) / width) * 100)) : 50;
-    return `inset(0 ${100 - pct}% 0 0)`;
-  });
+  const [pct, setPct] = useState(50);
 
   return (
-    <div
-      ref={(node) => {
-        ref.current = node;
-        if (node) setWidth(node.getBoundingClientRect().width);
-      }}
-      className="relative aspect-[5/3] overflow-hidden rounded-[32px] border border-white/20 bg-charcoal editorial-shadow"
-    >
+    <div className="relative aspect-[16/9] overflow-hidden rounded-[32px] editorial-shadow select-none">
+      {/* Before layer */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=82")' }}
+        style={{ backgroundImage: `url("${BEFORE_URL}")` }}
       />
-      <motion.div
+
+      {/* After layer — clipped from the left */}
+      <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          clipPath: clip,
-          backgroundImage: 'url("https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1400&q=82")',
+          backgroundImage: `url("${AFTER_URL}")`,
+          clipPath: `inset(0 ${100 - pct}% 0 0)`,
         }}
       />
-      <motion.div
-        drag="x"
-        dragConstraints={ref}
-        dragElastic={0}
-        style={{ x }}
-        className="absolute left-1/2 top-0 h-full w-px cursor-ew-resize bg-white/80"
+
+      {/* Divider line + handle */}
+      <div
+        className="pointer-events-none absolute top-0 bottom-0 w-px bg-white/80"
+        style={{ left: `${pct}%` }}
       >
-        <div className="absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/50 bg-white/90 text-xs font-bold text-petrol-dark shadow-xl">
-          DRAG
+        <div className="absolute top-1/2 left-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/40 bg-white/95 shadow-xl text-petrol-dark font-bold text-xs tracking-tight">
+          ↔
         </div>
-      </motion.div>
-      <div className="absolute left-5 top-5 rounded-full bg-charcoal/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+      </div>
+
+      {/* Labels */}
+      <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-charcoal/65 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
         Before
       </div>
-      <div className="absolute right-5 top-5 rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-petrol-dark backdrop-blur">
-        Renoza plan
+      <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-petrol-dark backdrop-blur">
+        After
       </div>
+
+      {/* Invisible range input — handles all drag + touch */}
+      <input
+        type="range"
+        min={5}
+        max={95}
+        value={pct}
+        onChange={(e) => setPct(Number(e.target.value))}
+        className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+      />
     </div>
   );
 }
