@@ -1,225 +1,286 @@
-import Link from "next/link";
+"use client";
+
+import { useEffect, useRef, useState, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { generateRenovationPlan } from "@/lib/mock-ai";
-import type { ProjectInput, RenovationPlan } from "@/lib/types";
 import { BUDGET_LABELS, ROOM_TYPE_LABELS } from "@/lib/types";
-import CopyButton from "@/components/CopyButton";
+import type { ProjectInput } from "@/lib/types";
+import { SPONSOR_PRODUCTS, FEATURED_CONTRACTORS } from "@/lib/sponsors";
+import AnimatedSection from "@/components/AnimatedSection";
+import SectionCard from "@/components/SectionCard";
+import BudgetGauge from "@/components/BudgetGauge";
+import CountUpDisplay from "@/components/CountUpDisplay";
+import CostBreakdownChart from "@/components/CostBreakdownChart";
+import TimelinePlayer from "@/components/TimelinePlayer";
+import WhatsAppBubble from "@/components/WhatsAppBubble";
+import SponsoredCard from "@/components/SponsoredCard";
+import ContractorTile from "@/components/ContractorTile";
 
-interface Props {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ data?: string }>;
-}
+const SECTIONS = [
+  { id: "summary", label: "Summary" }, { id: "approach", label: "Approach" },
+  { id: "budget", label: "Budget" }, { id: "work-items", label: "Work Items" },
+  { id: "materials", label: "Materials" }, { id: "labour", label: "Labour" },
+  { id: "timeline", label: "Timeline" }, { id: "risks", label: "Risks" },
+  { id: "questions", label: "Questions" }, { id: "whatsapp", label: "WhatsApp Brief" },
+];
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-xl border border-canvas-dark bg-white p-5 sm:p-6">
-      <h2 className="text-sm font-semibold text-petrol-700 uppercase tracking-wide mb-3">
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-}
+export default function ProjectResultPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeSection, setActiveSection] = useState("summary");
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-function BulletList({ items }: { items: string[] }) {
-  return (
-    <ul className="space-y-1.5">
-      {items.map((item, i) => (
-        <li key={i} className="flex gap-2 text-sm text-charcoal leading-relaxed">
-          <span className="text-petrol-500 mt-0.5 shrink-0">•</span>
-          <span>{item}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
+  const raw = searchParams.get("data");
+  const input: ProjectInput | null = useMemo(() => {
+    if (!raw) return null;
+    try { return JSON.parse(raw) as ProjectInput; } catch { return null; }
+  }, [raw]);
 
-export default async function ProjectResultPage({ params, searchParams }: Props) {
-  const [resolvedParams, resolvedSearch] = await Promise.all([params, searchParams]);
-  const { id } = resolvedParams;
-  const { data } = resolvedSearch;
+  const plan = useMemo(() => input ? generateRenovationPlan(input) : null, [input]);
 
-  let input: ProjectInput | null = null;
-  let plan: RenovationPlan | null = null;
+  useEffect(() => {
+    if (!plan) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); });
+    }, { threshold: 0.15, rootMargin: "-80px 0px -60% 0px" });
+    Object.values(sectionRefs.current).forEach((el) => { if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [plan]);
 
-  if (data) {
-    try {
-      input = JSON.parse(decodeURIComponent(data)) as ProjectInput;
-      plan = generateRenovationPlan(input);
-    } catch {
-      // fallback to null — error state shown below
-    }
-  }
+  const scrollTo = (id: string) => {
+    const el = sectionRefs.current[id];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (!input || !plan) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-muted text-sm mb-4">
-          Could not load project data. Please start a new plan.
-        </p>
-        <Link
-          href="/projects/new"
-          className="inline-block px-5 py-2.5 rounded-lg bg-petrol-700 text-white text-sm font-medium"
-        >
-          New renovation plan
-        </Link>
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "80px 24px", textAlign: "center" }}>
+        <p style={{ color: "var(--muted)", fontSize: 14, marginBottom: 20 }}>Could not load project data.</p>
+        <button onClick={() => router.push("/projects/new")} className="btn-scale" style={{
+          padding: "12px 28px", borderRadius: 10, background: "var(--petrol-700)", color: "white", fontSize: 14, fontWeight: 600,
+        }}>Start a new plan</button>
       </div>
     );
   }
 
+  const relevantProducts = SPONSOR_PRODUCTS.filter((p) => input.goals.some((g) => p.tags.includes(g))).slice(0, 4);
+  const maxItemCost = Math.max(...plan.work_items.map((w) => w.high));
+
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
+    <div className="page-enter">
 
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div>
-            <p className="text-sm font-medium text-petrol-600 uppercase tracking-widest mb-1">
-              Renovation plan
-            </p>
-            <h1 className="text-2xl font-bold text-charcoal">{input.name}</h1>
-            <p className="text-sm text-muted mt-1">
-              {ROOM_TYPE_LABELS[input.room_type]} · {input.location} ·{" "}
-              {BUDGET_LABELS[input.budget_range]}
-            </p>
+      <div style={{ borderBottom: "1px solid var(--canvas-dark)", background: "white" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--petrol-600)", marginBottom: 6 }}>Renovation Plan</p>
+              <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(24px, 3.5vw, 34px)", fontWeight: 700, color: "var(--charcoal)", marginBottom: 10 }}>{input.name}</h1>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {[ROOM_TYPE_LABELS[input.room_type], input.location, BUDGET_LABELS[input.budget_range]].map((tag, i) => (
+                  <span key={i} style={{ fontSize: 12, padding: "4px 12px", borderRadius: 20, background: "var(--canvas)", border: "1px solid var(--canvas-dark)", color: "var(--charcoal-light)" }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button className="btn-scale" style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid var(--canvas-dark)", background: "white", color: "var(--charcoal)" }}>Share</button>
+              <button className="btn-scale" onClick={() => scrollTo("whatsapp")} style={{ padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: 500, border: "1px solid var(--petrol-200)", background: "var(--petrol-50)", color: "var(--petrol-700)" }}>Copy WhatsApp brief</button>
+            </div>
           </div>
-          <Link
-            href="/projects/new"
-            className="text-sm text-petrol-700 underline underline-offset-2"
-          >
-            Start new plan
-          </Link>
         </div>
+        <div className="gradient-line" />
       </div>
 
       {/* Disclaimer */}
-      <div className="mb-6 rounded-lg bg-clay-50 border border-clay-200 px-4 py-3 text-xs text-clay-700 leading-relaxed">
-        Cost estimates are broad ranges based on typical South African market rates. Always get at least two itemised quotes from registered contractors before committing. Renoza is an AI planning tool — not a substitute for professional advice.
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "16px 24px" }}>
+        <div style={{ borderRadius: 10, background: "var(--clay-50)", border: "1px solid var(--clay-200)", padding: "12px 18px", fontSize: 12, color: "var(--clay-700)", lineHeight: 1.6 }}>
+          Cost estimates are broad ranges based on typical South African market rates. Always get at least two itemised quotes from registered contractors before committing.
+        </div>
       </div>
 
-      <div className="space-y-5">
+      {/* Two-column layout */}
+      <div className="result-grid" style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 24px 80px", display: "grid", gridTemplateColumns: "200px 1fr", gap: 32 }}>
 
-        {/* Room summary */}
-        <Section title="Room Summary">
-          <p className="text-sm text-charcoal leading-relaxed">{plan.room_summary}</p>
-        </Section>
+        {/* Sidebar */}
+        <aside className="result-sidebar" style={{ position: "sticky", top: 76, alignSelf: "start", display: "flex", flexDirection: "column", gap: 2 }}>
+          {SECTIONS.map((s) => (
+            <button key={s.id} onClick={() => scrollTo(s.id)} style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
+              borderRadius: 8, fontSize: 13, fontWeight: activeSection === s.id ? 600 : 400,
+              color: activeSection === s.id ? "var(--petrol-700)" : "var(--muted)",
+              background: activeSection === s.id ? "var(--petrol-50)" : "transparent",
+              textAlign: "left", transition: "all 0.2s", width: "100%", border: "none", cursor: "pointer",
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: activeSection === s.id ? "var(--petrol-600)" : "var(--canvas-dark)", transition: "all 0.3s" }} />
+              {s.label}
+            </button>
+          ))}
+        </aside>
 
-        {/* Recommended approach */}
-        <Section title="Recommended Approach">
-          <p className="text-sm text-charcoal leading-relaxed">{plan.recommended_approach}</p>
-        </Section>
+        {/* Main */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
 
-        {/* Budget realism */}
-        <Section title="Budget Realism">
-          <p className="text-sm text-charcoal leading-relaxed">{plan.budget_realism}</p>
-        </Section>
+          <section id="summary" ref={(el) => { sectionRefs.current["summary"] = el; }}>
+            <SectionCard title="Room Summary">
+              <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7 }}>{plan.room_summary}</p>
+            </SectionCard>
+          </section>
 
-        {/* Suggested work items */}
-        <Section title="Suggested Work Items">
-          <div className="space-y-3">
-            {plan.work_items.map((item, i) => (
-              <div
-                key={i}
-                className="flex gap-4 py-3 border-b border-canvas-dark last:border-0"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-charcoal">
-                    {item.category}
-                  </div>
-                  <div className="text-sm text-muted mt-0.5 leading-relaxed">
-                    {item.description}
-                  </div>
-                </div>
-                <div className="text-sm font-semibold text-petrol-700 whitespace-nowrap shrink-0">
-                  {item.estimated_cost}
+          <section id="approach" ref={(el) => { sectionRefs.current["approach"] = el; }}>
+            <SectionCard title="Recommended Approach">
+              <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7 }}>{plan.recommended_approach}</p>
+            </SectionCard>
+          </section>
+
+          <section id="budget" ref={(el) => { sectionRefs.current["budget"] = el; }}>
+            <SectionCard title="Budget Realism">
+              <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7, marginBottom: 24 }}>{plan.budget_realism}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "center" }}>
+                <BudgetGauge low={plan.cost_low} high={plan.cost_high} max={plan.budget_max} size={200} />
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.06em" }}>Estimated range</div>
+                  <CountUpDisplay value={plan.cost_low} prefix="R" fontSize={28} />
+                  <span style={{ fontSize: 20, color: "var(--muted)", margin: "0 8px" }}>–</span>
+                  <CountUpDisplay value={plan.cost_high} prefix="R" fontSize={28} />
                 </div>
               </div>
-            ))}
+            </SectionCard>
+          </section>
+
+          <section id="work-items" ref={(el) => { sectionRefs.current["work-items"] = el; }}>
+            <SectionCard title="Suggested Work Items">
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {plan.work_items.map((item, i) => (
+                  <AnimatedSection key={i} delay={i * 0.08}>
+                    <div style={{ display: "flex", gap: 16, padding: "16px 0", borderBottom: i < plan.work_items.length - 1 ? "1px solid var(--canvas-dark)" : "none", alignItems: "flex-start" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--charcoal)", marginBottom: 3 }}>{item.category}</div>
+                        <div style={{ fontSize: 13, color: "var(--charcoal-light)", lineHeight: 1.55 }}>{item.description}</div>
+                      </div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "var(--petrol-700)", whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>{item.estimated_cost}</div>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+              <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--petrol-700)", borderRadius: 10, padding: "14px 20px" }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "white" }}>Total estimated range</span>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "white", fontVariantNumeric: "tabular-nums" }}>{plan.estimated_cost_range}</span>
+              </div>
+              <div style={{ marginTop: 24 }}>
+                <CostBreakdownChart items={plan.work_items} maxCost={maxItemCost * 1.2} />
+              </div>
+            </SectionCard>
+          </section>
+
+          {/* Sponsored Products */}
+          {relevantProducts.length > 0 && (
+            <AnimatedSection>
+              <div style={{ padding: "20px 0" }}>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 14 }}>Recommended products for your renovation</p>
+                <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
+                  {relevantProducts.map((p) => <SponsoredCard key={p.id} product={p} />)}
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          <section id="materials" ref={(el) => { sectionRefs.current["materials"] = el; }}>
+            <SectionCard title="Materials List">
+              <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {plan.materials_list.map((m, i) => (
+                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.5 }}>
+                    <span style={{ color: "var(--petrol-500)", marginTop: 2, flexShrink: 0 }}>•</span><span>{m}</span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </section>
+
+          <section id="labour" ref={(el) => { sectionRefs.current["labour"] = el; }}>
+            <SectionCard title="Labour Categories">
+              <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {plan.labour_categories.map((l, i) => (
+                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.5 }}>
+                    <span style={{ color: "var(--petrol-500)", marginTop: 2, flexShrink: 0 }}>•</span><span>{l}</span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </section>
+
+          {/* Contractor Tiles */}
+          <AnimatedSection>
+            <div style={{ padding: "8px 0 20px" }}>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 14 }}>Featured contractors near you</p>
+              <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 8 }}>
+                {FEATURED_CONTRACTORS.map((c) => <ContractorTile key={c.id} contractor={c} />)}
+              </div>
+            </div>
+          </AnimatedSection>
+
+          <section id="timeline" ref={(el) => { sectionRefs.current["timeline"] = el; }}>
+            <SectionCard title="Renovation Timeline">
+              <TimelinePlayer phases={plan.timeline_phases} />
+            </SectionCard>
+          </section>
+
+          <section id="risks" ref={(el) => { sectionRefs.current["risks"] = el; }}>
+            <SectionCard title="Risks & Hidden Costs">
+              <ul style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {plan.risks_and_hidden_costs.map((r, i) => (
+                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.6, paddingLeft: 12, borderLeft: "3px solid var(--clay-400)" }}>
+                    <span>{r}</span>
+                  </li>
+                ))}
+              </ul>
+            </SectionCard>
+          </section>
+
+          <section id="questions" ref={(el) => { sectionRefs.current["questions"] = el; }}>
+            <SectionCard title="Questions for Your Contractor">
+              <ol style={{ display: "flex", flexDirection: "column", gap: 8, listStyle: "none" }}>
+                {plan.questions_for_contractor.map((q, i) => (
+                  <li key={i} style={{ display: "flex", gap: 10, fontSize: 14, color: "var(--charcoal)", lineHeight: 1.6 }}>
+                    <span style={{ color: "var(--petrol-600)", fontWeight: 600, flexShrink: 0, width: 24 }}>{i + 1}.</span>
+                    <span>{q}</span>
+                  </li>
+                ))}
+              </ol>
+            </SectionCard>
+          </section>
+
+          <section id="whatsapp" ref={(el) => { sectionRefs.current["whatsapp"] = el; }}>
+            <SectionCard title="WhatsApp Contractor Brief">
+              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16 }}>Copy and send to contractors via WhatsApp to get consistent, comparable quotes.</p>
+              <WhatsAppBubble text={plan.whatsapp_brief} />
+            </SectionCard>
+          </section>
+
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", paddingTop: 16 }}>
+            <button onClick={() => router.push("/quote-review")} className="btn-scale" style={{ padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 600, background: "var(--petrol-700)", color: "white" }}>
+              Review a contractor quote →
+            </button>
+            <button onClick={() => router.push("/projects/new")} className="btn-scale" style={{ padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 500, border: "1px solid var(--canvas-dark)", background: "white", color: "var(--charcoal)" }}>
+              Plan another room
+            </button>
           </div>
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-petrol-50 px-4 py-3">
-            <span className="text-sm font-semibold text-charcoal">
-              Total estimated range
-            </span>
-            <span className="text-base font-bold text-petrol-800">
-              {plan.estimated_cost_range}
-            </span>
-          </div>
-        </Section>
 
-        {/* Materials list */}
-        <Section title="Materials List">
-          <BulletList items={plan.materials_list} />
-        </Section>
+          {/* Financing banner */}
+          <AnimatedSection>
+            <div style={{ borderRadius: 12, border: "1px solid var(--petrol-200)", borderLeft: "4px solid var(--petrol-600)", background: "white", padding: "20px 24px" }}>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>Sponsored</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: "var(--charcoal)", marginBottom: 4 }}>Financing available</p>
+              <p style={{ fontSize: 13, color: "var(--charcoal-light)", lineHeight: 1.6, marginBottom: 12 }}>
+                Standard Bank Home Improvement Loan — from R5,000 to R300,000. Apply online in 5 minutes with instant pre-approval.
+              </p>
+              <button className="btn-scale" style={{ padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 500, background: "var(--petrol-50)", border: "1px solid var(--petrol-200)", color: "var(--petrol-700)" }}>
+                Learn more →
+              </button>
+            </div>
+          </AnimatedSection>
 
-        {/* Labour */}
-        <Section title="Labour Categories Needed">
-          <BulletList items={plan.labour_categories} />
-        </Section>
-
-        {/* Risks */}
-        <Section title="Risks &amp; Hidden Costs to Watch For">
-          <ul className="space-y-2">
-            {plan.risks_and_hidden_costs.map((risk, i) => (
-              <li key={i} className="flex gap-2 text-sm text-charcoal leading-relaxed">
-                <span className="text-clay-500 mt-0.5 shrink-0">⚠</span>
-                <span>{risk}</span>
-              </li>
-            ))}
-          </ul>
-        </Section>
-
-        {/* Questions for contractor */}
-        <Section title="Questions to Ask Your Contractor">
-          <ol className="space-y-1.5 list-none">
-            {plan.questions_for_contractor.map((q, i) => (
-              <li key={i} className="flex gap-2 text-sm text-charcoal leading-relaxed">
-                <span className="text-petrol-500 font-semibold shrink-0 w-5">
-                  {i + 1}.
-                </span>
-                <span>{q}</span>
-              </li>
-            ))}
-          </ol>
-        </Section>
-
-        {/* WhatsApp brief */}
-        <Section title="WhatsApp Contractor Brief">
-          <p className="text-xs text-muted mb-3">
-            Copy and send to contractors via WhatsApp to get consistent,
-            comparable quotes.
-          </p>
-          <div className="rounded-lg bg-canvas border border-canvas-dark p-4">
-            <pre className="text-sm text-charcoal whitespace-pre-wrap font-sans leading-relaxed">
-              {plan.whatsapp_brief}
-            </pre>
-          </div>
-          <CopyButton text={plan.whatsapp_brief} />
-        </Section>
-
+        </div>
       </div>
-
-      {/* Bottom actions */}
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link
-          href="/quote-review"
-          className="inline-block px-5 py-2.5 rounded-lg bg-petrol-700 text-white text-sm font-medium hover:bg-petrol-800 transition-colors"
-        >
-          Review a contractor quote →
-        </Link>
-        <Link
-          href="/projects/new"
-          className="inline-block px-5 py-2.5 rounded-lg border border-canvas-dark bg-white text-charcoal text-sm font-medium hover:border-petrol-400 transition-colors"
-        >
-          Plan another room
-        </Link>
-      </div>
-
-      <p className="mt-6 text-xs text-muted">Project ID: {id}</p>
     </div>
   );
 }

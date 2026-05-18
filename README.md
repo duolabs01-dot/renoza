@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Renoza
 
-## Getting Started
+Renoza is an AI renovation planning platform for South African homes.
 
-First, run the development server:
+Tagline:
+
+> From room photo to fair quote.
+
+## Product Direction
+
+Renoza helps homeowners turn renovation uncertainty into a practical plan:
+
+- room and budget intake
+- rand-based cost ranges
+- renovation risks and hidden-cost flags
+- WhatsApp-ready contractor briefs
+- contractor quote review
+- contextual sponsored recommendations for renovation brands
+
+The design direction is premium but grounded: Houzz-style aspiration, Linear-style clarity, and a South African renovation reality layer.
+
+## Animation Architecture
+
+- `framer-motion` powers page entry, section reveals, form step transitions, hover states, copy states, counters, and loading overlays.
+- `@remotion/player` + `remotion` power inline animated visuals:
+  - `BudgetGauge`
+  - `CostBreakdownChart`
+  - `TimelinePlayer`
+- Motion respects `prefers-reduced-motion` where the interaction is not essential.
+
+## Design System
+
+Brand palette is defined in `app/globals.css`:
+
+- Petrol: `#1E5541`, `#338567`, `#85C0A8`
+- Clay: `#C7603E`, `#E27A4D`
+- Canvas: `#FAF8F5`, `#F2EDE7`
+- Charcoal: `#2D2D2D`, `#4A4A4A`
+
+Typography:
+
+- Display: Playfair Display
+- Body/UI: Inter
+- Costs use tabular numbers and large, confident treatment.
+
+## Routes
+
+- `/` home and product narrative
+- `/projects/new` multi-step renovation intake
+- `/projects/[id]` generated renovation plan
+- `/quote-review` contractor quote review
+- `/projects` mock saved projects dashboard
+- `/quote-comparison` mock multi-quote comparison
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Verification
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx tsc --noEmit
+npm run lint
+npm run build
+```
