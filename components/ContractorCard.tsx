@@ -12,7 +12,7 @@ interface Props {
 export default function ContractorCard({ contractor, whatsappBrief, highlightGoals }: Props) {
   const stars = Array.from({ length: 5 }, (_, i) => i < Math.floor(contractor.rating) ? "★" : "☆").join("");
   const waLink = `https://wa.me/${contractor.whatsapp}?text=${encodeURIComponent(
-    whatsappBrief || `Hi, I found your profile on Renoza and would like to discuss a renovation project.`
+    whatsappBrief || `Hi, found you on Renoza and looking to get a renovation quote. Got a minute to chat?`
   )}`;
 
   return (
@@ -72,7 +72,7 @@ export default function ContractorCard({ contractor, whatsappBrief, highlightGoa
         className="mt-auto flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white transition hover:opacity-90"
       >
         <MessageCircle className="h-4 w-4" />
-        Request quote via WhatsApp
+        Send the brief on WhatsApp
       </a>
     </div>
   );

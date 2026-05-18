@@ -143,12 +143,17 @@ export default function ProjectResultPage() {
     return (
       <div className="grid min-h-[60vh] place-items-center px-6 text-center">
         <div>
-          <p className="mb-4 text-sm text-charcoal-light">Plan not found or link expired.</p>
+          <p className="mb-2 font-display text-2xl font-semibold text-charcoal">
+            Can&apos;t find this plan.
+          </p>
+          <p className="mb-5 text-sm text-charcoal-light">
+            It might have been deleted, or the share link has expired.
+          </p>
           <button
             onClick={() => router.push("/projects/new")}
             className="rounded-full bg-petrol-dark px-5 py-2.5 text-sm font-bold text-white"
           >
-            Start a new plan
+            Build a fresh one
           </button>
         </div>
       </div>
