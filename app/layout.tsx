@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Geist } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import Nav from "@/components/Nav";
 import "./globals.css";
-import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -30,12 +27,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(playfair.variable, inter.variable, "font-sans", geist.variable)}>
+    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body>
         <Nav />
         {children}
         <footer className="border-t border-charcoal/10 bg-canvas px-6 py-8 text-center text-xs font-medium text-charcoal-light">
-          Renoza - AI renovation planning for South African homes. Prices are estimates only. Always get at least two itemised quotes.
+          Renoza — AI renovation planning for South African homes. Prices are estimates only. Always get at least two itemised quotes.
         </footer>
       </body>
     </html>
