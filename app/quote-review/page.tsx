@@ -35,12 +35,12 @@ export default function QuoteReviewPage() {
 
   return (
     <main>
-      <section className="bg-charcoal px-6 py-20 text-white">
-        <div className="container-page grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+      <section className="bg-charcoal px-4 py-12 text-white sm:px-6 sm:py-16 lg:py-20">
+        <div className="container-page grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-end lg:gap-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-petrol-light">Quote review</p>
-            <h1 className="font-display text-5xl font-semibold leading-tight sm:text-7xl">Is this quote fair?</h1>
-            <p className="mt-5 max-w-lg text-base leading-8 text-white/60">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-petrol-light">Quote review</p>
+            <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-7xl">Is this quote fair?</h1>
+            <p className="mt-4 max-w-lg text-sm leading-7 text-white/60 sm:text-base sm:leading-8">
               Paste a WhatsApp message, email, or typed list. Renoza looks for missing details, risky deposit terms, and vague scope language.
             </p>
           </motion.div>
@@ -50,21 +50,21 @@ export default function QuoteReviewPage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="rounded-[32px] bg-white p-4 shadow-2xl shadow-black/25"
+            className="rounded-[28px] bg-white p-3 shadow-2xl shadow-black/25 sm:rounded-[32px] sm:p-4"
           >
-            <div className="paper-texture overflow-hidden rounded-[24px] border border-charcoal/10">
+            <div className="paper-texture overflow-hidden rounded-[20px] border border-charcoal/10 sm:rounded-[24px]">
               <textarea
                 value={quoteText}
                 onChange={(event) => setQuoteText(event.target.value)}
                 required
-                rows={12}
+                rows={10}
                 placeholder={"Paste your contractor quote here...\n\nExample:\nLabour: R8,000\nMaterials: R4,000\nDeposit: 50% upfront\nTimeline: 5 days"}
-                className="h-full w-full resize-y bg-transparent px-5 py-5 text-sm leading-8 text-charcoal outline-none placeholder:text-charcoal-light/55"
+                className="h-full w-full resize-y bg-transparent px-4 py-4 text-base leading-8 text-charcoal outline-none placeholder:text-charcoal-light/55 sm:px-5 sm:py-5"
               />
             </div>
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-3 flex flex-col gap-3 sm:mt-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs font-medium leading-5 text-charcoal-light">Tip: include payment terms, timelines, line items, and contractor messages.</p>
-              <button disabled={!quoteText.trim() || loading} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-clay px-5 py-3 text-sm font-bold text-white transition hover:bg-clay-highlight disabled:bg-canvas-dark disabled:text-charcoal-light">
+              <button disabled={!quoteText.trim() || loading} className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-clay px-5 py-3.5 text-sm font-bold text-white transition hover:bg-clay-highlight disabled:bg-canvas-dark disabled:text-charcoal-light sm:w-auto sm:py-3">
                 Review quote <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -95,7 +95,7 @@ export default function QuoteReviewPage() {
       </AnimatePresence>
 
       {review ? (
-        <section className="container-page py-16">
+        <section className="container-page py-8 sm:py-12 lg:py-16">
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="eyebrow mb-3">Review complete</p>

@@ -1,195 +1,183 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Plus, Home } from "lucide-react";
 import AnimatedSection from "@/components/AnimatedSection";
 import { getMockSavedProjects } from "@/lib/mock-ai";
 import { ROOM_TYPE_LABELS, STATUS_LABELS, BUDGET_LABELS } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import type { SavedProject, ProjectStatus } from "@/lib/types";
 
-const STATUS_COLORS: Record<ProjectStatus, { bg: string; color: string }> = {
-  draft:       { bg: "var(--canvas-dark)", color: "var(--muted)" },
-  planned:     { bg: "var(--petrol-100)", color: "var(--petrol-800)" },
-  "in-progress": { bg: "#fef9c3", color: "#854d0e" },
-  complete:    { bg: "#dcfce7", color: "#166534" },
+const STATUS_STYLES: Record<ProjectStatus, string> = {
+  draft: "bg-canvas-dark text-charcoal-light border-0",
+  planned: "bg-petrol-light/20 text-petrol-dark border-0",
+  "in-progress": "bg-yellow-100 text-yellow-800 border-0",
+  complete: "bg-green-100 text-green-800 border-0",
 };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-ZA", {
+    day: "numeric", month: "short", year: "numeric",
+  });
 }
 
-function ProjectCard({ project, onClick }: { project: SavedProject; onClick: () => void }) {
-  const sc = STATUS_COLORS[project.status];
+function ProjectCard({ project }: { project: SavedProject }) {
   return (
-    <div
-      onClick={onClick}
-      className="card-hover"
-      style={{
-        background: "white", borderRadius: 14, padding: 24,
-        border: "1px solid var(--canvas-dark)", cursor: "pointer",
-        display: "flex", flexDirection: "column", gap: 16,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 16, fontWeight: 600, color: "var(--charcoal)", marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {project.name}
-          </p>
-          <p style={{ fontSize: 13, color: "var(--muted)" }}>{project.location}</p>
-        </div>
-        <span style={{
-          fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20,
-          background: sc.bg, color: sc.color, whiteSpace: "nowrap", flexShrink: 0,
-        }}>
-          {STATUS_LABELS[project.status]}
-        </span>
-      </div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-        <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 20, background: "var(--canvas)", border: "1px solid var(--canvas-dark)", color: "var(--charcoal-light)" }}>
-          {ROOM_TYPE_LABELS[project.room_type]}
-        </span>
-        <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 20, background: "var(--canvas)", border: "1px solid var(--canvas-dark)", color: "var(--charcoal-light)" }}>
-          {BUDGET_LABELS[project.budget_range]}
-        </span>
-        {project.photo_count ? (
-          <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 20, background: "var(--canvas)", border: "1px solid var(--canvas-dark)", color: "var(--charcoal-light)" }}>
-            {project.photo_count} photo{project.photo_count !== 1 ? "s" : ""}
-          </span>
-        ) : null}
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTop: "1px solid var(--canvas-dark)" }}>
-        {project.estimated_cost_range ? (
-          <div>
-            <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", marginBottom: 2 }}>Estimated</p>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--petrol-700)" }}>{project.estimated_cost_range}</p>
+    <Link href={`/projects/${project.id}`} className="block">
+      <Card className="card-hover h-full border-canvas-dark bg-white transition-shadow">
+        <CardContent className="flex h-full flex-col gap-4 p-5">
+          {/* Header row */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-semibold text-charcoal">
+                {project.name}
+              </p>
+              <p className="mt-0.5 text-sm text-charcoal-light">{project.location}</p>
+            </div>
+            <Badge className={STATUS_STYLES[project.status]}>
+              {STATUS_LABELS[project.status]}
+            </Badge>
           </div>
-        ) : (
-          <p style={{ fontSize: 13, color: "var(--muted)", fontStyle: "italic" }}>No estimate yet</p>
-        )}
-        <p style={{ fontSize: 12, color: "var(--muted)" }}>{formatDate(project.created_at)}</p>
-      </div>
-    </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-canvas-dark bg-canvas px-3 py-1 text-xs font-medium text-charcoal-light">
+              {ROOM_TYPE_LABELS[project.room_type]}
+            </span>
+            <span className="rounded-full border border-canvas-dark bg-canvas px-3 py-1 text-xs font-medium text-charcoal-light">
+              {BUDGET_LABELS[project.budget_range]}
+            </span>
+            {project.photo_count ? (
+              <span className="rounded-full border border-canvas-dark bg-canvas px-3 py-1 text-xs font-medium text-charcoal-light">
+                {project.photo_count} photo{project.photo_count !== 1 ? "s" : ""}
+              </span>
+            ) : null}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-auto flex items-center justify-between border-t border-canvas-dark pt-4">
+            {project.estimated_cost_range ? (
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal-light/60">
+                  Estimated
+                </p>
+                <p className="text-sm font-bold text-petrol-dark">
+                  {project.estimated_cost_range}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm italic text-charcoal-light/60">No estimate yet</p>
+            )}
+            <p className="text-xs text-charcoal-light/60">{formatDate(project.created_at)}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
+const FILTERS: Array<{ value: ProjectStatus | "all"; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "draft", label: "Draft" },
+  { value: "planned", label: "Planned" },
+  { value: "in-progress", label: "In Progress" },
+  { value: "complete", label: "Complete" },
+];
+
 export default function ProjectsDashboard() {
-  const router = useRouter();
   const [filter, setFilter] = useState<ProjectStatus | "all">("all");
   const allProjects = getMockSavedProjects();
   const projects = filter === "all" ? allProjects : allProjects.filter((p) => p.status === filter);
 
-  const filters: Array<{ value: ProjectStatus | "all"; label: string }> = [
-    { value: "all", label: "All" },
-    { value: "draft", label: "Draft" },
-    { value: "planned", label: "Planned" },
-    { value: "in-progress", label: "In Progress" },
-    { value: "complete", label: "Complete" },
-  ];
-
   return (
-    <div className="page-enter" style={{ minHeight: "80vh", padding: "48px 24px", maxWidth: 1100, margin: "0 auto" }}>
+    <main className="min-h-[calc(100vh-3.5rem)]">
+      <div className="container-page py-6 sm:py-10">
 
-      {/* Header */}
-      <AnimatedSection>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--petrol-600)", marginBottom: 8 }}>
-              My Projects
-            </p>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(26px, 3.5vw, 36px)", fontWeight: 700, color: "var(--charcoal)", lineHeight: 1.2 }}>
-              Your renovation plans
-            </h1>
-          </div>
-          <button
-            onClick={() => router.push("/projects/new")}
-            className="btn-scale"
-            style={{
-              padding: "12px 24px", borderRadius: 10, background: "var(--petrol-700)",
-              color: "white", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap",
-            }}
-          >
-            + New plan
-          </button>
-        </div>
-      </AnimatedSection>
-
-      {/* Filter tabs */}
-      <AnimatedSection delay={0.05}>
-        <div style={{ display: "flex", gap: 2, borderBottom: "1px solid var(--canvas-dark)", marginBottom: 28 }}>
-          {filters.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setFilter(f.value)}
-              style={{
-                padding: "8px 16px", fontSize: 13,
-                fontWeight: filter === f.value ? 600 : 400,
-                color: filter === f.value ? "var(--petrol-700)" : "var(--muted)",
-                borderBottom: filter === f.value ? "2px solid var(--petrol-700)" : "2px solid transparent",
-                background: "none", marginBottom: -1, transition: "all 0.2s", whiteSpace: "nowrap",
-              }}
-            >
-              {f.label}
-              {f.value !== "all" && (
-                <span style={{ marginLeft: 6, fontSize: 11, color: "var(--muted)" }}>
-                  ({allProjects.filter((p) => p.status === f.value).length})
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </AnimatedSection>
-
-      {/* Project grid */}
-      {projects.length > 0 ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
-          {projects.map((project, i) => (
-            <AnimatedSection key={project.id} delay={i * 0.07}>
-              <ProjectCard
-                project={project}
-                onClick={() => router.push(`/projects/${project.id}`)}
-              />
-            </AnimatedSection>
-          ))}
-        </div>
-      ) : (
-        /* Empty state */
-        <AnimatedSection delay={0.1}>
-          <div style={{ textAlign: "center", padding: "80px 24px" }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: 16, background: "var(--canvas)",
-              border: "1px solid var(--canvas-dark)",
-              display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px",
-            }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
+        {/* Page header */}
+        <AnimatedSection>
+          <div className="flex items-start justify-between gap-4 sm:items-center">
+            <div>
+              <p className="eyebrow mb-2">My Projects</p>
+              <h1 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">
+                Your renovation plans
+              </h1>
             </div>
-            <p style={{ fontSize: 17, fontWeight: 600, color: "var(--charcoal)", marginBottom: 8 }}>
-              {filter === "all" ? "No projects yet" : `No ${STATUS_LABELS[filter as ProjectStatus].toLowerCase()} projects`}
-            </p>
-            <p style={{ fontSize: 14, color: "var(--muted)", marginBottom: 24, maxWidth: 320, margin: "0 auto 24px" }}>
-              {filter === "all"
-                ? "Start by creating your first renovation plan. It only takes a few minutes."
-                : "Try selecting a different filter above."}
-            </p>
-            {filter === "all" && (
-              <button
-                onClick={() => router.push("/projects/new")}
-                className="btn-scale"
-                style={{
-                  padding: "12px 28px", borderRadius: 10, background: "var(--petrol-700)",
-                  color: "white", fontSize: 14, fontWeight: 600,
-                }}
-              >
-                Create my first plan →
-              </button>
-            )}
+            <Link href="/projects/new" className="inline-flex shrink-0 items-center gap-1.5 rounded-2xl bg-petrol-dark px-4 py-2.5 text-sm font-semibold text-white hover:bg-petrol-mid">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">New plan</span>
+              <span className="sm:hidden">New</span>
+            </Link>
           </div>
         </AnimatedSection>
-      )}
-    </div>
+
+        {/* Filter chips — horizontally scrollable on mobile */}
+        <AnimatedSection delay={0.05}>
+          <div className="-mx-4 mt-6 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-2 pb-1">
+              {FILTERS.map((f) => {
+                const active = filter === f.value;
+                const count = f.value !== "all" ? allProjects.filter((p) => p.status === f.value).length : null;
+                return (
+                  <button
+                    key={f.value}
+                    onClick={() => setFilter(f.value)}
+                    className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                      active
+                        ? "bg-petrol-dark text-white shadow-sm"
+                        : "bg-white text-charcoal-light border border-charcoal/10 hover:border-petrol-dark/30 hover:text-petrol-dark"
+                    }`}
+                  >
+                    {f.label}
+                    {count !== null && (
+                      <span className={`text-xs ${active ? "text-petrol-light" : "text-charcoal-light/50"}`}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* Project grid */}
+        <div className="mt-6">
+          {projects.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((project, i) => (
+                <AnimatedSection key={project.id} delay={i * 0.06}>
+                  <ProjectCard project={project} />
+                </AnimatedSection>
+              ))}
+            </div>
+          ) : (
+            /* Empty state */
+            <AnimatedSection delay={0.1}>
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="mb-5 grid h-16 w-16 place-items-center rounded-3xl border border-canvas-dark bg-canvas">
+                  <Home className="h-7 w-7 text-charcoal-light/40" />
+                </div>
+                <p className="text-lg font-semibold text-charcoal">
+                  {filter === "all" ? "No projects yet" : `No ${STATUS_LABELS[filter as ProjectStatus].toLowerCase()} projects`}
+                </p>
+                <p className="mt-2 max-w-xs text-sm leading-6 text-charcoal-light">
+                  {filter === "all"
+                    ? "Start by creating your first renovation plan. It only takes a few minutes."
+                    : "Try a different filter above."}
+                </p>
+                {filter === "all" && (
+                  <Link href="/projects/new" className="mt-6 inline-flex items-center rounded-2xl bg-petrol-dark px-5 py-3 text-sm font-semibold text-white hover:bg-petrol-mid">
+                    Create my first plan
+                  </Link>
+                )}
+              </div>
+            </AnimatedSection>
+          )}
+        </div>
+
+      </div>
+    </main>
   );
 }

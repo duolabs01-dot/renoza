@@ -1,137 +1,100 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowLeft, ArrowRight, ShieldAlert, CheckCircle2, AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
 import { compareContractorQuotes } from "@/lib/mock-ai";
 import type { QuoteComparison, SingleQuoteSummary } from "@/lib/types";
 import AnimatedSection from "@/components/AnimatedSection";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-const CLARITY_COLORS: Record<string, { bg: string; color: string; label: string }> = {
-  clear:   { bg: "#dcfce7", color: "#166534", label: "Clear" },
-  partial: { bg: "#fef9c3", color: "#854d0e", label: "Partial" },
-  vague:   { bg: "#fee2e2", color: "#991b1b", label: "Vague" },
+const CLARITY_BADGE: Record<string, string> = {
+  clear:   "bg-green-100 text-green-800 border-0",
+  partial: "bg-yellow-100 text-yellow-800 border-0",
+  vague:   "bg-red-100 text-red-800 border-0",
 };
+const CLARITY_LABEL: Record<string, string> = { clear: "Clear", partial: "Partial", vague: "Vague" };
 
-const PLACEHOLDER = [
+const PLACEHOLDERS = [
   "Hi, please quote for painting my lounge (4m x 5m). Labour and materials, 2 coats. Let me know your price and when you can start.",
-  "Good day, I need a quote for the full bathroom retile. Remove old tiles, supply and fix new 300x300 ceramic tiles to walls and floor. Include waterproofing. Will need CoC for the geyser work. Payment: 30% deposit, 70% on completion.",
+  "Good day, I need a quote for a full bathroom retile. Remove old tiles, supply and fix new 300x300 ceramic tiles to walls and floor. Include waterproofing. CoC for geyser work. Payment: 30% deposit, 70% on completion.",
+  "Paste third contractor quote here…",
 ];
 
-function QuoteTextarea({ index, value, onChange }: { index: number; value: string; onChange: (v: string) => void }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <label style={{ fontSize: 14, fontWeight: 500, color: "var(--charcoal)" }}>
-        Quote {index + 1}
-      </label>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={PLACEHOLDER[index] || `Paste contractor quote ${index + 1} here…`}
-        rows={6}
-        style={{
-          width: "100%", padding: "14px 16px", borderRadius: 10,
-          border: "1px solid var(--canvas-dark)", fontSize: 14,
-          color: "var(--charcoal)", background: "white", resize: "vertical",
-          outline: "none", fontFamily: "inherit", lineHeight: 1.6,
-          transition: "border-color 0.2s, box-shadow 0.2s",
-        }}
-        onFocus={(e) => { e.target.style.borderColor = "var(--petrol-500)"; e.target.style.boxShadow = "0 0 0 3px rgba(51,133,103,0.12)"; }}
-        onBlur={(e) => { e.target.style.borderColor = "var(--canvas-dark)"; e.target.style.boxShadow = "none"; }}
-      />
-    </div>
-  );
-}
-
 function QuoteResultCard({ summary, isBest }: { summary: SingleQuoteSummary; isBest: boolean }) {
-  const clarity = CLARITY_COLORS[summary.scope_clarity];
   return (
-    <div style={{
-      background: "white", borderRadius: 14, padding: 24,
-      border: isBest ? "2px solid var(--petrol-500)" : "1px solid var(--canvas-dark)",
-      position: "relative",
-    }}>
+    <Card className={`relative overflow-visible border-2 bg-white ${isBest ? "border-petrol-dark" : "border-canvas-dark"}`}>
       {isBest && (
-        <div style={{
-          position: "absolute", top: -1, right: 16,
-          background: "var(--petrol-700)", color: "white",
-          fontSize: 10, fontWeight: 700, padding: "3px 10px",
-          borderRadius: "0 0 8px 8px", letterSpacing: "0.08em", textTransform: "uppercase",
-        }}>
+        <span className="absolute -top-px right-4 rounded-b-xl bg-petrol-dark px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
           Best to clarify first
-        </div>
-      )}
-
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, gap: 12 }}>
-        <div>
-          <p style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 700, color: "var(--charcoal)", marginBottom: 4 }}>
-            {summary.label}
-          </p>
-          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--petrol-700)" }}>
-            {summary.price_mentioned}
-          </p>
-        </div>
-        <span style={{
-          fontSize: 11, fontWeight: 600, padding: "4px 12px", borderRadius: 20,
-          background: clarity.bg, color: clarity.color, whiteSpace: "nowrap", flexShrink: 0,
-        }}>
-          {clarity.label} scope
         </span>
-      </div>
-
-      {/* Strengths */}
-      {summary.strengths.length > 0 && summary.strengths[0] !== "Minimal detail provided to assess strengths" && (
-        <div style={{ marginBottom: 14 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--petrol-700)", marginBottom: 8 }}>
-            Strengths
-          </p>
-          <ul style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {summary.strengths.map((s, i) => (
-              <li key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--charcoal)", lineHeight: 1.5 }}>
-                <span style={{ color: "var(--petrol-500)", flexShrink: 0 }}>✓</span>
-                {s}
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
-
-      {/* Missing items */}
-      {summary.missing_items[0] !== "No major omissions detected — verify with a site visit" && (
-        <div style={{ marginBottom: 14 }}>
-          <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", marginBottom: 8 }}>
-            Missing
-          </p>
-          <ul style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {summary.missing_items.map((m, i) => (
-              <li key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--charcoal)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "3px solid var(--canvas-dark)" }}>
-                {m}
-              </li>
-            ))}
-          </ul>
+      <CardContent className="flex flex-col gap-5 p-5">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="font-display text-xl font-bold text-charcoal">{summary.label}</p>
+            <p className="mt-0.5 text-sm font-semibold text-petrol-dark">{summary.price_mentioned}</p>
+          </div>
+          <Badge className={CLARITY_BADGE[summary.scope_clarity]}>
+            {CLARITY_LABEL[summary.scope_clarity]} scope
+          </Badge>
         </div>
-      )}
 
-      {/* Red flags */}
-      {summary.red_flags[0] !== "No major red flags detected" && (
-        <div>
-          <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--clay-500)", marginBottom: 8 }}>
-            Red flags
-          </p>
-          <ul style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {summary.red_flags.map((f, i) => (
-              <li key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--charcoal)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "3px solid var(--clay-300)" }}>
-                {f}
-              </li>
-            ))}
-          </ul>
+        {/* Strengths */}
+        {summary.strengths.length > 0 && summary.strengths[0] !== "Minimal detail provided to assess strengths" && (
+          <div>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Strengths</p>
+            <ul className="space-y-2">
+              {summary.strengths.map((s, i) => (
+                <li key={i} className="flex gap-2 text-sm leading-6 text-charcoal-light">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-petrol-mid" />
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Missing */}
+        {summary.missing_items[0] !== "No major omissions detected — verify with a site visit" && (
+          <div>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-charcoal-light/60">Missing</p>
+            <ul className="space-y-2">
+              {summary.missing_items.map((m, i) => (
+                <li key={i} className="border-l-2 border-canvas-dark pl-3 text-sm leading-6 text-charcoal-light">
+                  {m}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Red flags */}
+        {summary.red_flags[0] !== "No major red flags detected" && (
+          <div>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-clay">Red flags</p>
+            <ul className="space-y-2">
+              {summary.red_flags.map((f, i) => (
+                <li key={i} className="flex gap-2 text-sm leading-6 text-charcoal-light">
+                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-clay" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Payment */}
+        <div className="border-t border-canvas-dark pt-4 text-xs leading-5 text-charcoal-light/70">
+          {summary.payment_terms}
         </div>
-      )}
-
-      {/* Payment terms */}
-      <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--canvas-dark)" }}>
-        <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.5 }}>{summary.payment_terms}</p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -141,8 +104,8 @@ export default function QuoteComparisonPage() {
   const [result, setResult] = useState<QuoteComparison | null>(null);
   const [analysing, setAnalysing] = useState(false);
 
-  const filledCount = quoteTexts.slice(0, quoteCount).filter((q) => q.trim()).length;
-  const canAnalyse = filledCount >= 2;
+  const filled = quoteTexts.slice(0, quoteCount).filter((q) => q.trim()).length;
+  const canAnalyse = filled >= 2;
 
   const handleAnalyse = () => {
     const quotes = quoteTexts.slice(0, quoteCount).filter((q) => q.trim());
@@ -159,120 +122,126 @@ export default function QuoteComparisonPage() {
     setQuoteTexts(["", "", ""]);
   };
 
-  const updateQuote = (i: number, v: string) => {
+  const update = (i: number, v: string) =>
     setQuoteTexts((prev) => { const n = [...prev]; n[i] = v; return n; });
-  };
 
+  /* Loading screen */
   if (analysing) {
     return (
-      <div className="page-enter" style={{ minHeight: "80vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 24 }}>
-        <div style={{ width: 56, height: 56, borderRadius: 14, background: "var(--petrol-700)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24, animation: "pulse 1.5s ease infinite" }}>
-          <span style={{ color: "white", fontSize: 16, fontWeight: 700 }}>RZ</span>
-        </div>
-        <p className="shimmer-text" style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600, marginBottom: 8 }}>
-          Comparing quotes…
-        </p>
-        <p style={{ fontSize: 14, color: "var(--muted)" }}>Checking scope, pricing, and red flags</p>
-      </div>
+      <main className="grid min-h-[calc(100vh-3.5rem)] place-items-center px-4">
+        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
+          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-[22px] bg-petrol-dark text-lg font-bold text-white shadow-xl shadow-petrol-dark/25">
+            RZ
+          </div>
+          <h1 className="font-display text-3xl font-semibold text-charcoal">Comparing quotes…</h1>
+          <p className="mt-2 text-sm text-charcoal-light">Checking scope, pricing, and red flags</p>
+          <div className="mx-auto mt-8 h-1 w-64 overflow-hidden rounded-full bg-canvas-dark">
+            <motion.div className="h-full bg-petrol-dark" initial={{ x: "-100%" }} animate={{ x: "100%" }} transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }} />
+          </div>
+        </motion.div>
+      </main>
     );
   }
 
   return (
-    <div className="page-enter">
+    <main>
       {/* Hero */}
-      <section style={{ background: "var(--charcoal)", padding: "60px 24px 48px" }}>
-        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      <section className="bg-charcoal px-4 py-12 text-white sm:px-6 sm:py-16">
+        <div className="container-page">
           <AnimatedSection>
-            <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--petrol-300)", marginBottom: 12 }}>
-              Quote Comparison
-            </p>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 700, color: "white", lineHeight: 1.15, marginBottom: 14 }}>
-              Compare up to 3 contractor quotes
+            <p className="eyebrow mb-3 text-petrol-light">Quote Comparison</p>
+            <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
+              Compare up to 3<br className="hidden sm:block" /> contractor quotes
             </h1>
-            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 520 }}>
-              Paste each quote below. Renoza checks scope clarity, flags red flags, and tells you which quote is safest to build on — before you pick a winner.
+            <p className="mt-4 max-w-lg text-base leading-8 text-white/60">
+              Paste each quote. Renoza checks scope clarity, flags red flags, and tells you which quote is safest to build on — before you pick a winner.
             </p>
           </AnimatedSection>
         </div>
       </section>
 
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px" }}>
+      <div className="container-page py-8 sm:py-12">
         {!result ? (
-          <>
-            <AnimatedSection>
-              {/* Quote count toggle */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 28, alignItems: "center" }}>
-                <span style={{ fontSize: 14, color: "var(--charcoal)", fontWeight: 500, marginRight: 4 }}>Comparing</span>
-                {[2, 3].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setQuoteCount(n)}
-                    className="btn-scale"
-                    style={{
-                      padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 500,
-                      border: quoteCount === n ? "2px solid var(--petrol-600)" : "1px solid var(--canvas-dark)",
-                      background: quoteCount === n ? "var(--petrol-700)" : "white",
-                      color: quoteCount === n ? "white" : "var(--charcoal)",
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    {n} quotes
-                  </button>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
-                {Array.from({ length: quoteCount }).map((_, i) => (
-                  <QuoteTextarea key={i} index={i} value={quoteTexts[i]} onChange={(v) => updateQuote(i, v)} />
-                ))}
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                <p style={{ fontSize: 13, color: "var(--muted)" }}>
-                  {filledCount < 2 ? `Add at least ${2 - filledCount} more quote${2 - filledCount !== 1 ? "s" : ""} to compare.` : `${filledCount} quote${filledCount !== 1 ? "s" : ""} ready to compare.`}
-                </p>
+          <AnimatedSection>
+            {/* How many quotes toggle */}
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <span className="text-sm font-semibold text-charcoal">Comparing</span>
+              {[2, 3].map((n) => (
                 <button
-                  onClick={handleAnalyse}
-                  disabled={!canAnalyse}
-                  className="btn-scale"
-                  style={{
-                    padding: "13px 32px", borderRadius: 10, fontSize: 14, fontWeight: 600,
-                    background: canAnalyse ? "var(--petrol-700)" : "var(--canvas-dark)",
-                    color: canAnalyse ? "white" : "var(--muted)",
-                    transition: "all 0.2s",
-                  }}
+                  key={n}
+                  onClick={() => setQuoteCount(n)}
+                  className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
+                    quoteCount === n
+                      ? "bg-petrol-dark text-white shadow-sm"
+                      : "border border-charcoal/10 bg-white text-charcoal-light hover:border-petrol-dark/30"
+                  }`}
                 >
-                  Compare quotes →
+                  {n} quotes
                 </button>
-              </div>
-            </AnimatedSection>
-          </>
+              ))}
+            </div>
+
+            {/* Textarea inputs */}
+            <div className="flex flex-col gap-5">
+              {Array.from({ length: quoteCount }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-2">
+                  <Label className="text-sm font-semibold text-charcoal">
+                    Quote {i + 1}
+                  </Label>
+                  <Textarea
+                    value={quoteTexts[i]}
+                    onChange={(e) => update(i, e.target.value)}
+                    placeholder={PLACEHOLDERS[i]}
+                    rows={6}
+                    className="resize-y rounded-2xl border-canvas-dark bg-white text-base leading-7 text-charcoal placeholder:text-charcoal-light/40 focus-visible:ring-petrol-mid"
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Action row */}
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="order-2 text-sm text-charcoal-light sm:order-1">
+                {filled < 2
+                  ? `Add ${2 - filled} more quote${2 - filled !== 1 ? "s" : ""} to compare.`
+                  : `${filled} quote${filled !== 1 ? "s" : ""} ready to compare.`}
+              </p>
+              <Button
+                onClick={handleAnalyse}
+                disabled={!canAnalyse}
+                className="order-1 w-full rounded-2xl bg-petrol-dark py-6 text-base font-bold text-white hover:bg-petrol-mid disabled:bg-canvas-dark disabled:text-charcoal-light sm:order-2 sm:w-auto sm:py-3"
+              >
+                Compare quotes <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </AnimatedSection>
         ) : (
           <>
-            {/* Results */}
+            {/* Results header */}
             <AnimatedSection>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32, flexWrap: "wrap", gap: 12 }}>
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--petrol-600)", marginBottom: 6 }}>
-                    Analysis complete
-                  </p>
-                  <h2 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 700, color: "var(--charcoal)" }}>
+                  <p className="eyebrow mb-2">Analysis complete</p>
+                  <h2 className="font-display text-3xl font-semibold text-charcoal sm:text-4xl">
                     Your quote comparison
                   </h2>
                 </div>
-                <button onClick={handleReset} style={{ fontSize: 13, color: "var(--muted)", background: "none", border: "1px solid var(--canvas-dark)", padding: "8px 16px", borderRadius: 8, cursor: "pointer" }}>
-                  ← Compare new quotes
+                <button
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-2 self-start rounded-full border border-charcoal/10 bg-white px-4 py-2.5 text-sm font-semibold text-charcoal-light sm:self-auto"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Compare new quotes
                 </button>
               </div>
             </AnimatedSection>
 
             {/* Per-quote cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20, marginBottom: 32 }}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {result.quotes.map((q, i) => (
-                <AnimatedSection key={q.index} delay={i * 0.08}>
+                <AnimatedSection key={q.index} delay={i * 0.07}>
                   <QuoteResultCard
                     summary={q}
-                    isBest={q.label === result.recommended_followup.split(" ")[1] + " " + result.recommended_followup.split(" ")[2]}
+                    isBest={result.recommended_followup.startsWith(`Start with ${q.label}`)}
                   />
                 </AnimatedSection>
               ))}
@@ -280,57 +249,74 @@ export default function QuoteComparisonPage() {
 
             {/* Cross-quote insights */}
             <AnimatedSection delay={0.15}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20, marginBottom: 24 }}>
-                <div style={{ background: "var(--canvas)", borderRadius: 12, border: "1px solid var(--canvas-dark)", padding: "20px 24px" }}>
-                  <h4 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--petrol-700)", marginBottom: 10 }}>Price comparison</h4>
-                  <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7 }}>{result.price_comparison}</p>
-                </div>
-                <div style={{ background: "var(--canvas)", borderRadius: 12, border: "1px solid var(--canvas-dark)", padding: "20px 24px" }}>
-                  <h4 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--petrol-700)", marginBottom: 10 }}>Scope comparison</h4>
-                  <p style={{ fontSize: 14, color: "var(--charcoal)", lineHeight: 1.7 }}>{result.scope_comparison}</p>
-                </div>
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Card className="border-canvas-dark bg-canvas">
+                  <CardHeader className="pb-2 pt-5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Price comparison</p>
+                  </CardHeader>
+                  <CardContent className="pb-5 pt-0">
+                    <p className="text-sm leading-7 text-charcoal-light">{result.price_comparison}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-canvas-dark bg-canvas">
+                  <CardHeader className="pb-2 pt-5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Scope comparison</p>
+                  </CardHeader>
+                  <CardContent className="pb-5 pt-0">
+                    <p className="text-sm leading-7 text-charcoal-light">{result.scope_comparison}</p>
+                  </CardContent>
+                </Card>
               </div>
             </AnimatedSection>
 
             {/* Recommended next step */}
             <AnimatedSection delay={0.2}>
-              <div style={{ background: "var(--petrol-700)", borderRadius: 14, padding: "24px 28px", marginBottom: 24, color: "white" }}>
-                <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", opacity: 0.7, marginBottom: 10 }}>
+              <div className="mt-4 rounded-3xl bg-petrol-dark p-6 text-white">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-petrol-light/70">
                   Recommended next step
                 </p>
-                <p style={{ fontSize: 15, lineHeight: 1.7 }}>{result.recommended_followup}</p>
+                <p className="text-base leading-7">{result.recommended_followup}</p>
               </div>
             </AnimatedSection>
 
-            {/* Shared missing items + questions */}
+            {/* Shared missing + questions */}
             <AnimatedSection delay={0.25}>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-                <div style={{ background: "var(--canvas)", borderRadius: 12, border: "1px solid var(--canvas-dark)", padding: "20px 24px" }}>
-                  <h4 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", marginBottom: 12 }}>Missing from all quotes</h4>
-                  <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {result.shared_missing_items.map((item, i) => (
-                      <li key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--charcoal)", lineHeight: 1.5, paddingLeft: 10, borderLeft: "3px solid var(--canvas-dark)" }}>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div style={{ background: "var(--canvas)", borderRadius: 12, border: "1px solid var(--canvas-dark)", padding: "20px 24px" }}>
-                  <h4 style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--petrol-700)", marginBottom: 12 }}>Questions to send all contractors</h4>
-                  <ul style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {result.questions_for_all.map((q, i) => (
-                      <li key={i} style={{ display: "flex", gap: 8, fontSize: 13, color: "var(--charcoal)", lineHeight: 1.5 }}>
-                        <span style={{ color: "var(--petrol-500)", flexShrink: 0 }}>→</span>
-                        {q}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Card className="border-canvas-dark bg-canvas">
+                  <CardHeader className="pb-2 pt-5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal-light/60">Missing from all quotes</p>
+                  </CardHeader>
+                  <CardContent className="pb-5 pt-0">
+                    <ul className="space-y-3">
+                      {result.shared_missing_items.map((item, i) => (
+                        <li key={i} className="flex gap-2 text-sm leading-6 text-charcoal-light">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-charcoal-light/40" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card className="border-canvas-dark bg-canvas">
+                  <CardHeader className="pb-2 pt-5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-petrol-dark">Questions for all contractors</p>
+                  </CardHeader>
+                  <CardContent className="pb-5 pt-0">
+                    <ol className="space-y-3">
+                      {result.questions_for_all.map((q, i) => (
+                        <li key={i} className="flex gap-3 text-sm leading-6 text-charcoal-light">
+                          <span className="font-display text-base font-bold text-petrol-dark">{i + 1}</span>
+                          {q}
+                        </li>
+                      ))}
+                    </ol>
+                  </CardContent>
+                </Card>
               </div>
             </AnimatedSection>
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }
