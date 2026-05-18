@@ -18,10 +18,10 @@ export default function SamplePlanPreview() {
         <AnimatedSection>
           <p className="eyebrow mb-4">Live sample</p>
           <h2 className="font-display text-4xl font-semibold leading-tight text-charcoal sm:text-5xl">
-            First-time visitors should see the value before filling a form.
+            This is what you walk away with.
           </h2>
           <p className="mt-5 max-w-lg text-base leading-8 text-charcoal-light">
-            This is the product promise in miniature: a clear budget range, risk flags, and a contractor brief that feels ready to send.
+            A Rand range, a list of what could go wrong, and a WhatsApp message you can send to any contractor today — no sign-up, no fluff.
           </p>
           <Link href="/projects/new" className="mt-8 inline-flex items-center gap-2 rounded-full bg-petrol-dark px-6 py-4 text-sm font-bold text-white shadow-xl shadow-petrol-dark/20 transition hover:-translate-y-0.5">
             Generate my plan <ArrowRight className="h-4 w-4" />
