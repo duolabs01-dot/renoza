@@ -91,8 +91,8 @@ export default function ProjectsDashboard() {
   const [allProjects, setAllProjects] = useState<SavedProject[]>([]);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      setAllProjects(getAllProjects().map(toSavedProject));
+    getAllProjects().then((projects) => {
+      setAllProjects(projects.map(toSavedProject));
     });
   }, []);
 

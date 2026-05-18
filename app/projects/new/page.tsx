@@ -98,10 +98,8 @@ function NewProjectForm() {
   useEffect(() => {
     const eid = searchParams.get("edit");
     if (!eid) return;
-    const stored = getProject(eid);
-    if (!stored) return;
-
-    queueMicrotask(() => {
+    getProject(eid).then((stored) => {
+      if (!stored) return;
       setEditId(eid);
       const { input } = stored;
       setName(input.name);
@@ -116,7 +114,7 @@ function NewProjectForm() {
       setCompassDirection(input.compass_direction ?? "");
       setFloorPlan(input.floor_plan ? { name: input.floor_plan.name, analysis: input.floor_plan.analysis } : null);
     });
-  }, [searchParams]);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pre-fill from BallparkEstimator URL params (?room=&goals=&city=)
   useEffect(() => {
@@ -269,20 +267,20 @@ function NewProjectForm() {
       const plan = await res.json();
 
       if (editId) {
-        updateProject(editId, { input, plan });
+        await updateProject(editId, { input, plan });
         router.push(`/projects/${editId}`);
       } else {
-        const id = saveProject(input, plan);
+        const id = await saveProject(input, plan);
         router.push(`/projects/${id}`);
       }
     } catch {
       const { generateRenovationPlan } = await import("@/lib/mock-ai");
       const plan = generateRenovationPlan(input);
       if (editId) {
-        updateProject(editId, { input, plan });
+        await updateProject(editId, { input, plan });
         router.push(`/projects/${editId}`);
       } else {
-        const id = saveProject(input, plan);
+        const id = await saveProject(input, plan);
         router.push(`/projects/${id}`);
       }
     }

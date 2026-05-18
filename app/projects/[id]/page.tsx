@@ -58,44 +58,43 @@ export default function ProjectResultPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // Load from localStorage on mount
+  // Load project on mount
   useEffect(() => {
     if (!id) {
-      queueMicrotask(() => setProject(null));
+      setProject(null);
       return;
     }
 
-    // Check if this is a shared link (no local storage match)
-    const stored = getProject(id);
-    if (stored) {
-      queueMicrotask(() => setProject(stored));
-      return;
-    }
-
-    // Try share param fallback
-    const shareParam = new URLSearchParams(window.location.search).get("share");
-    if (shareParam) {
-      try {
-        const { input } = JSON.parse(atob(shareParam));
-        // Regenerate plan for shared links
-        fetch("/api/generate-plan", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(input),
-        })
-          .then((r) => r.json())
-          .then((plan) => {
-            setProject({ id, input, plan, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
-          })
-          .catch(() => setProject(null));
-        return;
-      } catch {
-        queueMicrotask(() => setProject(null));
+    getProject(id).then((stored) => {
+      if (stored) {
+        setProject(stored);
         return;
       }
-    }
 
-    queueMicrotask(() => setProject(null));
+      // Try share param fallback
+      const shareParam = new URLSearchParams(window.location.search).get("share");
+      if (shareParam) {
+        try {
+          const { input } = JSON.parse(atob(shareParam));
+          fetch("/api/generate-plan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(input),
+          })
+            .then((r) => r.json())
+            .then((plan) => {
+              setProject({ id, input, plan, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+            })
+            .catch(() => setProject(null));
+          return;
+        } catch {
+          setProject(null);
+          return;
+        }
+      }
+
+      setProject(null);
+    });
   }, [id]);
 
   // Intersection observer for active section
@@ -128,8 +127,7 @@ export default function ProjectResultPage() {
 
   const handleDelete = () => {
     if (!id) return;
-    deleteProject(id);
-    router.push("/projects");
+    deleteProject(id).then(() => router.push("/projects"));
   };
 
   // Loading / not found states

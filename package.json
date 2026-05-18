@@ -12,6 +12,7 @@
     "@ai-sdk/google": "^3.0.75",
     "@base-ui/react": "^1.4.1",
     "@remotion/player": "^4.0.462",
+    "@supabase/supabase-js": "^2.105.4",
     "@tailwindcss/typography": "^0.5.19",
     "ai": "^6.0.184",
     "class-variance-authority": "^0.7.1",
