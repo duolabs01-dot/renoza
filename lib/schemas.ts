@@ -60,6 +60,15 @@ export const renovationPlanSchema = z.object({
   floor_plan_notes: z.string().optional(),
 });
 
+export const colourSwatchSchema = z.object({
+  name: z.string(),
+  hex: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  brand: z.string(),
+  code: z.string().optional(),
+  use: z.string(),
+  mood: z.string(),
+});
+
 export const narrativeSchema = z.object({
   room_summary: z.string(),
   recommended_approach: z.string(),
@@ -67,6 +76,7 @@ export const narrativeSchema = z.object({
   whatsapp_brief: z.string(),
   feng_shui: fengShuiAnalysisSchema.optional(),
   floor_plan_notes: z.string().optional(),
+  colour_palette: z.array(colourSwatchSchema).min(3).max(5).optional(),
 });
 
 export const quoteReviewSchema = z.object({

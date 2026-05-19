@@ -25,6 +25,7 @@ import ContractorCard from "@/components/ContractorCard";
 import CopyButton from "@/components/CopyButton";
 import ScopeDiagram from "@/components/ScopeDiagram";
 import FengShuiCard from "@/components/FengShuiCard";
+import ColourPaletteCard from "@/components/ColourPaletteCard";
 import SnaggingList from "@/components/SnaggingList";
 import DepositShield from "@/components/DepositShield";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ import Link from "next/link";
 const SECTIONS = [
   { id: "summary",         label: "Summary" },
   { id: "budget",          label: "Budget" },
+  { id: "colours",         label: "Colours" },  // only shown when plan.colour_palette exists
   { id: "scope-sketch",    label: "Scope" },
   { id: "whatsapp",        label: "WhatsApp" },
   { id: "work-items",      label: "Work Items" },
@@ -224,6 +226,7 @@ export default function ProjectResultPage() {
           <div className="flex gap-1 px-4 py-2">
             {SECTIONS
               .filter((s) => s.id !== "spatial-harmony" || !!plan.feng_shui)
+              .filter((s) => s.id !== "colours" || !!plan.colour_palette?.length)
               .filter((s) => s.id !== "contractors")
               .map((s) => (
                 <button
@@ -308,6 +311,18 @@ export default function ProjectResultPage() {
               </div>
             </SectionCard>
           </section>
+
+          {/* Colour palette — only when paint / full-makeover / sale-prep is in scope */}
+          {plan.colour_palette && plan.colour_palette.length > 0 && (
+            <section id="colours" ref={(el) => { sectionRefs.current["colours"] = el; }}>
+              <SectionCard title="Your colour palette" kicker="Picked for this room — no more staring at swatches">
+                <ColourPaletteCard
+                  palette={plan.colour_palette}
+                  roomLabel={ROOM_TYPE_LABELS[input.room_type] ?? input.room_type}
+                />
+              </SectionCard>
+            </section>
+          )}
 
           <section id="scope-sketch" ref={(el) => { sectionRefs.current["scope-sketch"] = el; }}>
             <SectionCard title="Scope Sketch" kicker="Sketch only — not a structural drawing">

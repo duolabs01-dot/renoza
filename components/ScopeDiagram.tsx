@@ -1,37 +1,43 @@
 "use client";
 
-import type { ProjectInput, RenovationGoal, RenovationPlan } from "@/lib/types";
+import type { ProjectInput, RenovationGoal } from "@/lib/types";
 import { parseDimensions } from "@/lib/pricing";
 
 interface Props {
   input: ProjectInput;
-  plan?: RenovationPlan;
+  plan?: unknown;
   showFengShui?: boolean;
   compassDirection?: string;
 }
 
-const GOAL_FILLS: Partial<Record<RenovationGoal, string>> = {
-  paint:                "rgba(133,192,168,0.20)",
-  flooring:             "rgba(155,135,114,0.17)",
-  tiling:               "rgba(199,96,62,0.13)",
-  lighting:             "rgba(255,210,80,0.14)",
-  cupboards:            "rgba(180,130,80,0.16)",
-  electrical:           "rgba(80,130,200,0.13)",
-  plumbing:             "rgba(80,180,200,0.13)",
-  "damp-repair":        "rgba(199,96,62,0.25)",
-  "full-makeover":      "rgba(30,85,65,0.13)",
-  "prepare-rental-sale":"rgba(100,150,90,0.13)",
+// Distinct colours per goal — used for chip dot + border
+const GOAL_COLORS: Partial<Record<RenovationGoal, string>> = {
+  paint:                  "#2a7a5c",
+  flooring:               "#8B6F52",
+  tiling:                 "#C7603E",
+  lighting:               "#D4900A",
+  cupboards:              "#9B6F38",
+  electrical:             "#3B6FC8",
+  plumbing:               "#2898A8",
+  "damp-repair":          "#C7603E",
+  "full-makeover":        "#1e5541",
+  "prepare-rental-sale":  "#4A8A5A",
 };
-
-const DEMOLITION_GOALS: RenovationGoal[] = ["damp-repair", "full-makeover"];
 
 const GOAL_SHORT: Partial<Record<RenovationGoal, string>> = {
-  paint: "Paint", flooring: "Flooring", tiling: "Tiling",
-  lighting: "Lighting", cupboards: "Cupboards", electrical: "Electrical",
-  plumbing: "Plumbing", "damp-repair": "Damp repair",
-  "full-makeover": "Full makeover", "prepare-rental-sale": "Sale prep",
+  paint:                  "Paint",
+  flooring:               "Flooring",
+  tiling:                 "Tiling",
+  lighting:               "Lighting",
+  cupboards:              "Cupboards",
+  electrical:             "Electrical",
+  plumbing:               "Plumbing",
+  "damp-repair":          "Damp repair",
+  "full-makeover":        "Full makeover",
+  "prepare-rental-sale":  "Sale prep",
 };
 
+// Bagua grid for feng shui overlay
 const BAGUA: [string, string][] = [
   ["NW", "Helpful"], ["N",  "Career"],  ["NE", "Knowledge"],
   ["W",  "Creativ."],["",   "Health"],  ["E",  "Family"],
@@ -41,33 +47,46 @@ const BAGUA: [string, string][] = [
 export default function ScopeDiagram({ input, showFengShui, compassDirection }: Props) {
   const dims = parseDimensions(input.room_size ?? "");
   const goals = input.goals;
-  const hasDemolition = goals.some((g) => DEMOLITION_GOALS.includes(g));
 
-  // Canvas constants
+  // SVG canvas
   const W = 520, H = 400;
-  const pL = 52, pT = 28, pR = 52, pB = 78;
-  const rAW = W - pL - pR;
-  const rAH = H - pT - pB;
+  const pL = 52, pT = 28, pR = 52, pB = 60;
+  const rAW = W - pL - pR;  // 416
+  const rAH = H - pT - pB;  // 312
 
-  const scale = Math.min(rAW / dims.w, rAH / dims.h);
+  const scale = Math.min(rAW / Math.max(dims.w, 1), rAH / Math.max(dims.h, 1));
   const rW = Math.round(dims.w * scale);
   const rH = Math.round(dims.h * scale);
   const rX = pL + Math.round((rAW - rW) / 2);
   const rY = pT + Math.round((rAH - rH) / 2);
 
-  // Legend
-  const legendGoals = goals.filter((g) => GOAL_FILLS[g]);
-  const legendItems: { fill: string; label: string }[] = [
-    ...legendGoals.map((g) => ({ fill: GOAL_FILLS[g]!, label: GOAL_SHORT[g] ?? g })),
-    ...(hasDemolition ? [{ fill: "hatch", label: "Risk zone" }] : []),
-  ].slice(0, 8);
-  const LX = pL;
-  const LY = H - pB + 14;
-  const LIPH = 17;
-  const LIPW = 14;
-  const itemsPerRow = Math.min(legendItems.length, 5);
-  const ITEM_W = itemsPerRow > 0 ? Math.floor((W - pL - pR) / itemsPerRow) : 90;
+  // Chip layout — 2 per row for readability
+  const chipH = 22;
+  const chipGapX = 8;
+  const chipGapY = 7;
+  const chipPadX = 14;  // padding inside room from left/right edge
+  const chipPadTop = 14; // padding from top wall
+  const chipsPerRow = rW >= 260 ? 2 : 1;
+  const chipW = Math.max(
+    60,
+    Math.floor((rW - chipPadX * 2 - chipGapX * (chipsPerRow - 1)) / chipsPerRow),
+  );
+  const chipRows = Math.ceil(goals.length / chipsPerRow);
+  const chipsBlockH = chipRows * chipH + (chipRows - 1) * chipGapY;
 
+  // Door (bottom wall, left side)
+  const doorSize = Math.min(rW * 0.18, 42);
+  const doorOffsetFromLeft = 20;
+
+  // Window (top wall, center)
+  const winW = Math.min(rW * 0.30, 70);
+  const winX = rX + (rW - winW) / 2;
+
+  // Room label position — centered in lower portion below chips
+  const chipsEndY = rY + chipPadTop + chipsBlockH;
+  const roomLabelY = chipsEndY + (rY + rH - chipsEndY) / 2 + 5;
+
+  // Room type display name
   const roomLabel = input.room_type.toUpperCase().replace(/-/g, " ");
 
   return (
@@ -76,43 +95,26 @@ export default function ScopeDiagram({ input, showFengShui, compassDirection }: 
         viewBox={`0 0 ${W} ${H}`}
         className="w-full"
         role="img"
-        aria-label="Renovation scope sketch"
+        aria-label={`Scope sketch: ${roomLabel}, ${goals.map(g => GOAL_SHORT[g] ?? g).join(", ")}`}
       >
         <defs>
-          <pattern
-            id="sp-hatch"
-            x="0" y="0" width="8" height="8"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(45)"
-          >
-            <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(199,96,62,0.45)" strokeWidth="2.5" />
+          {/* Subtle floor tile pattern */}
+          <pattern id="sp-floor" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+            <rect width="28" height="28" fill="#faf8f5" />
+            <rect x="0" y="0" width="14" height="14" fill="rgba(0,0,0,0.012)" />
+            <rect x="14" y="14" width="14" height="14" fill="rgba(0,0,0,0.012)" />
           </pattern>
-          <pattern
-            id="sp-grid"
-            x="0" y="0" width="24" height="24"
-            patternUnits="userSpaceOnUse"
-          >
-            <path d="M24 0L0 0 0 24" fill="none" stroke="rgba(0,0,0,0.04)" strokeWidth="1" />
-          </pattern>
+
+          {/* Clip path to keep things inside the room */}
+          <clipPath id="sp-room-clip">
+            <rect x={rX + 2} y={rY + 2} width={rW - 4} height={rH - 4} />
+          </clipPath>
         </defs>
 
-        {/* Floor grid */}
-        <rect x={rX} y={rY} width={rW} height={rH} fill="url(#sp-grid)" />
+        {/* ── Floor (tiled pattern) ── */}
+        <rect x={rX + 2} y={rY + 2} width={rW - 4} height={rH - 4} fill="url(#sp-floor)" />
 
-        {/* Goal fill zones */}
-        {goals.map((g) => {
-          const fill = GOAL_FILLS[g];
-          return fill ? (
-            <rect key={g} x={rX} y={rY} width={rW} height={rH} fill={fill} />
-          ) : null;
-        })}
-
-        {/* Demolition hatching */}
-        {hasDemolition && (
-          <rect x={rX} y={rY} width={rW} height={rH} fill="url(#sp-hatch)" />
-        )}
-
-        {/* Bagua overlay */}
+        {/* ── Feng shui bagua overlay ── */}
         {showFengShui &&
           BAGUA.map(([dir, label], i) => {
             const col = i % 3;
@@ -123,113 +125,158 @@ export default function ScopeDiagram({ input, showFengShui, compassDirection }: 
             const cy = rY + row * cH;
             const isCenter = dir === "";
             return (
-              <g key={i}>
+              <g key={i} clipPath="url(#sp-room-clip)">
                 <rect
                   x={cx} y={cy} width={cW} height={cH}
                   fill={isCenter ? "rgba(30,85,65,0.07)" : "rgba(30,85,65,0.03)"}
-                  stroke="rgba(30,85,65,0.18)"
+                  stroke="rgba(30,85,65,0.15)"
                   strokeWidth="0.5"
                 />
                 {dir && (
                   <text
                     x={cx + cW / 2} y={cy + cH / 2 - 5}
                     textAnchor="middle" fontSize="8"
-                    fill="rgba(30,85,65,0.65)" fontWeight="700" fontFamily="inherit"
-                  >
-                    {dir}
-                  </text>
+                    fill="rgba(30,85,65,0.55)" fontWeight="700" fontFamily="inherit"
+                  >{dir}</text>
                 )}
                 <text
                   x={cx + cW / 2} y={cy + cH / 2 + (dir ? 7 : 4)}
                   textAnchor="middle" fontSize="7.5"
-                  fill="rgba(30,85,65,0.55)" fontFamily="inherit"
-                >
-                  {label}
-                </text>
+                  fill="rgba(30,85,65,0.45)" fontFamily="inherit"
+                >{label}</text>
               </g>
             );
           })}
 
-        {/* Room outline */}
+        {/* ── Room outline ── */}
         <rect
           x={rX} y={rY} width={rW} height={rH}
-          fill="none" stroke="#1e5541" strokeWidth="2.5" rx="3"
+          fill="none" stroke="#1e5541" strokeWidth="2.5" rx="2"
         />
 
-        {/* Room type label */}
+        {/* ── Window (top wall, center) ── */}
+        {/* Mask the wall gap */}
+        <line
+          x1={winX + 2} y1={rY} x2={winX + winW - 2} y2={rY}
+          stroke="#faf8f5" strokeWidth="4"
+        />
+        {/* Window frame box */}
+        <rect
+          x={winX} y={rY - 5} width={winW} height={10}
+          fill="rgba(200,230,240,0.4)" stroke="#1e5541" strokeWidth="1"
+        />
+        {/* Center pane divider */}
+        <line
+          x1={winX + winW / 2} y1={rY - 5} x2={winX + winW / 2} y2={rY + 5}
+          stroke="#1e5541" strokeWidth="0.8"
+        />
+
+        {/* ── Door (bottom wall, left side) ── */}
+        {/* Mask the wall gap */}
+        <line
+          x1={rX + doorOffsetFromLeft + 1} y1={rY + rH}
+          x2={rX + doorOffsetFromLeft + doorSize - 1} y2={rY + rH}
+          stroke="#faf8f5" strokeWidth="4"
+        />
+        {/* Door leaf */}
+        <line
+          x1={rX + doorOffsetFromLeft} y1={rY + rH}
+          x2={rX + doorOffsetFromLeft} y2={rY + rH - doorSize}
+          stroke="#1e5541" strokeWidth="1.5"
+        />
+        {/* Door swing arc */}
+        <path
+          d={`M ${rX + doorOffsetFromLeft} ${rY + rH - doorSize}
+              A ${doorSize} ${doorSize} 0 0 1
+              ${rX + doorOffsetFromLeft + doorSize} ${rY + rH}`}
+          fill="rgba(30,85,65,0.05)"
+          stroke="#1e5541" strokeWidth="1" strokeDasharray="4 2.5"
+        />
+
+        {/* ── Room type watermark ── */}
         <text
-          x={rX + rW / 2} y={rY + rH / 2 + 5}
-          textAnchor="middle" fontSize="13"
-          fill="rgba(30,85,65,0.25)" fontWeight="700" fontFamily="inherit"
+          x={rX + rW / 2} y={roomLabelY}
+          textAnchor="middle" fontSize="15"
+          fill="rgba(30,85,65,0.11)" fontWeight="800"
+          fontFamily="inherit" letterSpacing="0.09em"
         >
           {roomLabel}
         </text>
 
-        {/* Width dimension (below room) */}
-        <line x1={rX}      y1={rY + rH + 4} x2={rX}      y2={rY + rH + 16} stroke="#999" strokeWidth="1" />
-        <line x1={rX + rW} y1={rY + rH + 4} x2={rX + rW} y2={rY + rH + 16} stroke="#999" strokeWidth="1" />
-        <line x1={rX}      y1={rY + rH + 10} x2={rX + rW} y2={rY + rH + 10} stroke="#999" strokeWidth="1" />
-        <text x={rX + rW / 2} y={rY + rH + 26} textAnchor="middle" fontSize="11" fill="#666" fontFamily="inherit">
-          {dims.approximate ? "approx. " : ""}{dims.w}m
+        {/* ── Goal chips ── */}
+        {goals.map((goal, i) => {
+          const row = Math.floor(i / chipsPerRow);
+          const col = i % chipsPerRow;
+          const cx = rX + chipPadX + col * (chipW + chipGapX);
+          const cy = rY + chipPadTop + row * (chipH + chipGapY);
+          const color = GOAL_COLORS[goal] ?? "#1e5541";
+          const label = GOAL_SHORT[goal] ?? goal;
+          // Cap chip to stay within the room horizontally
+          const safeChipW = Math.min(chipW, rX + rW - chipPadX - cx);
+          return (
+            <g key={goal}>
+              {/* Chip background */}
+              <rect
+                x={cx} y={cy} width={safeChipW} height={chipH} rx={chipH / 2}
+                fill={color} fillOpacity="0.12"
+                stroke={color} strokeWidth="0.8" strokeOpacity="0.5"
+              />
+              {/* Colour dot */}
+              <circle cx={cx + 12} cy={cy + chipH / 2} r={4} fill={color} fillOpacity="0.9" />
+              {/* Label */}
+              <text
+                x={cx + 22} y={cy + chipH / 2 + 4}
+                fontSize="9.5" fontWeight="700"
+                fill={color}
+                fontFamily="inherit"
+              >
+                {label}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* ── Width dimension (below room) ── */}
+        <line x1={rX}      y1={rY + rH + 6}  x2={rX}      y2={rY + rH + 18} stroke="#999" strokeWidth="1" />
+        <line x1={rX + rW} y1={rY + rH + 6}  x2={rX + rW} y2={rY + rH + 18} stroke="#999" strokeWidth="1" />
+        <line x1={rX}      y1={rY + rH + 12} x2={rX + rW} y2={rY + rH + 12} stroke="#999" strokeWidth="1" />
+        <text
+          x={rX + rW / 2} y={rY + rH + 28}
+          textAnchor="middle" fontSize="11" fill="#666" fontFamily="inherit"
+        >
+          {dims.approximate ? "≈ " : ""}{dims.w}m
         </text>
 
-        {/* Height dimension (left of room) */}
-        <line x1={rX - 4}  y1={rY}      x2={rX - 16} y2={rY}      stroke="#999" strokeWidth="1" />
-        <line x1={rX - 4}  y1={rY + rH} x2={rX - 16} y2={rY + rH} stroke="#999" strokeWidth="1" />
-        <line x1={rX - 10} y1={rY}      x2={rX - 10} y2={rY + rH} stroke="#999" strokeWidth="1" />
+        {/* ── Height dimension (left of room) ── */}
+        <line x1={rX - 6}  y1={rY}      x2={rX - 18} y2={rY}      stroke="#999" strokeWidth="1" />
+        <line x1={rX - 6}  y1={rY + rH} x2={rX - 18} y2={rY + rH} stroke="#999" strokeWidth="1" />
+        <line x1={rX - 12} y1={rY}      x2={rX - 12} y2={rY + rH} stroke="#999" strokeWidth="1" />
         <text
-          x={rX - 22} y={rY + rH / 2}
+          x={rX - 24} y={rY + rH / 2}
           textAnchor="middle" fontSize="11" fill="#666" fontFamily="inherit"
-          transform={`rotate(-90 ${rX - 22} ${rY + rH / 2})`}
+          transform={`rotate(-90 ${rX - 24} ${rY + rH / 2})`}
         >
           {dims.h}m
         </text>
 
-        {/* Compass rose */}
-        <g transform={`translate(${W - 32}, 28)`}>
-          <circle cx="0" cy="0" r="16" fill="white" fillOpacity="0.9" stroke="rgba(0,0,0,0.10)" strokeWidth="1" />
-          <line x1="0" y1="-12" x2="0" y2="12" stroke="#ccc" strokeWidth="1" />
-          <line x1="-12" y1="0" x2="12" y2="0" stroke="#ccc" strokeWidth="1" />
-          {/* North pointer (filled) */}
-          <polygon points="0,-12 -3.5,-4 3.5,-4" fill="#1e5541" />
-          {/* South pointer (grey) */}
-          <polygon points="0,12 -3.5,4 3.5,4" fill="#bbb" />
-          <text x="0" y="-14" textAnchor="middle" fontSize="8" fill="#1e5541" fontWeight="700" fontFamily="inherit">
-            N
-          </text>
+        {/* ── Compass rose (top-right) ── */}
+        <g transform={`translate(${W - 28}, 26)`}>
+          <circle cx="0" cy="0" r="14" fill="white" fillOpacity="0.92" stroke="rgba(0,0,0,0.10)" strokeWidth="1" />
+          <line x1="0" y1="-10" x2="0" y2="10" stroke="#ccc" strokeWidth="0.8" />
+          <line x1="-10" y1="0" x2="10" y2="0" stroke="#ccc" strokeWidth="0.8" />
+          {/* North pointer */}
+          <polygon points="0,-10 -3,-3.5 3,-3.5" fill="#1e5541" />
+          {/* South pointer */}
+          <polygon points="0,10 -3,3.5 3,3.5" fill="#bbb" />
+          <text x="0" y="-12" textAnchor="middle" fontSize="7.5" fill="#1e5541" fontWeight="700" fontFamily="inherit">N</text>
           {compassDirection && compassDirection !== "unknown" && (
-            <text x="0" y="30" textAnchor="middle" fontSize="7.5" fill="#999" fontFamily="inherit">
+            <text x="0" y="27" textAnchor="middle" fontSize="7" fill="#999" fontFamily="inherit">
               {compassDirection}
             </text>
           )}
         </g>
-
-        {/* Legend */}
-        {legendItems.length > 0 && (
-          <g>
-            {legendItems.map((item, i) => {
-              const row = Math.floor(i / itemsPerRow);
-              const col = i % itemsPerRow;
-              const lx = LX + col * ITEM_W;
-              const ly = LY + row * LIPH;
-              return (
-                <g key={i} transform={`translate(${lx},${ly})`}>
-                  {item.fill === "hatch" ? (
-                    <rect x="0" y="0" width={LIPW} height={LIPH - 5}
-                      fill="url(#sp-hatch)" stroke="rgba(199,96,62,0.4)" strokeWidth="0.5" rx="2" />
-                  ) : (
-                    <rect x="0" y="0" width={LIPW} height={LIPH - 5}
-                      fill={item.fill} stroke="rgba(0,0,0,0.12)" strokeWidth="0.5" rx="2" />
-                  )}
-                  <text x={LIPW + 4} y={LIPH - 7} fontSize="9" fill="#666" fontFamily="inherit">
-                    {item.label}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        )}
       </svg>
+
       <figcaption className="mt-1.5 text-center text-xs text-charcoal-light">
         Scope sketch — not a structural drawing
       </figcaption>

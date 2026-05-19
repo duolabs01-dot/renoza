@@ -132,6 +132,25 @@ Include a feng_shui object with practical guidance framed around feng shui princ
     prompt += `\nDo NOT include a feng_shui field.`;
   }
 
+  const hasPaintGoal = input.goals.some(g =>
+    ["paint", "full-makeover", "prepare-rental-sale"].includes(g),
+  );
+  if (hasPaintGoal) {
+    prompt += `
+
+COLOUR PALETTE:
+Include a colour_palette array of 3–4 paint colours recommended for a ${roomLabel}.
+- name: Real Plascon or Dulux colour name available in South Africa
+- hex: Exact 6-digit hex code (accurate colour, not a guess)
+- brand: "Plascon" or "Dulux"
+- code: The paint code (e.g. "Y4-A2-4" for Plascon, "10YR 63/118" for Dulux)
+- use: Where to use it — "Main walls", "Feature wall", "Ceiling", "Cabinetry", or "Accent"
+- mood: 2–3 word descriptor e.g. "Warm, inviting" or "Clean, airy"
+Choose colours that work well together for this room type and feel right for a South African home.`;
+  } else {
+    prompt += `\nDo NOT include a colour_palette field.`;
+  }
+
   prompt += `\n\nWrite the narrative fields now.`;
   return prompt;
 }

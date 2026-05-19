@@ -98,6 +98,15 @@ export interface TimelinePhase {
   pct: number;
 }
 
+export interface ColourSwatch {
+  name: string;
+  hex: string;    // "#RRGGBB"
+  brand: string;  // "Plascon" | "Dulux"
+  code?: string;  // paint code e.g. "Y4-A2-4"
+  use: string;    // "Walls" | "Feature wall" | "Cabinetry" etc.
+  mood: string;   // "Warm, inviting"
+}
+
 export interface RenovationPlan {
   room_summary: string;
   recommended_approach: string;
@@ -115,6 +124,7 @@ export interface RenovationPlan {
   timeline_phases: TimelinePhase[];
   feng_shui?: FengShuiAnalysis;
   floor_plan_notes?: string;
+  colour_palette?: ColourSwatch[];
 }
 
 export interface QuoteReview {

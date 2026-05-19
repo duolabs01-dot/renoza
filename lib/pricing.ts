@@ -1,4 +1,4 @@
-import type { BudgetRange, ProjectInput, RenovationGoal, RenovationPlan, RoomType, WorkItem, TimelinePhase } from "./types";
+import type { BudgetRange, ColourSwatch, ProjectInput, RenovationGoal, RenovationPlan, RoomType, WorkItem, TimelinePhase } from "./types";
 import { BUDGET_LABELS, ROOM_TYPE_LABELS, GOAL_LABELS } from "./types";
 
 // ─── Dimension parsing ────────────────────────────────────────────────────────
@@ -628,10 +628,55 @@ function buildRecommendedApproach(input: ProjectInput): string {
   return `${isRental ? "Confirm scope changes with your landlord in writing before you start — even cosmetic work can cause deposit disputes later. " : ""}Cosmetic-only jobs are quick if the room is sound, so spend the first day checking — walk the room, look for damp stains, cracks, soft floor patches. Better to push the start date a week than discover a problem mid-paint.`;
 }
 
+// ─── Static colour palettes (fallback when AI is unavailable) ────────────────
+
+const FALLBACK_PALETTES: Partial<Record<RoomType, ColourSwatch[]>> = {
+  kitchen: [
+    { name: "White Mist", hex: "#F5F1EC", brand: "Plascon", code: "Y1-A1-1",         use: "Walls & ceiling",  mood: "Bright, airy"      },
+    { name: "Stonework",  hex: "#C8B99A", brand: "Plascon", code: "Y4-A2-4",         use: "Accent wall",      mood: "Warm, grounded"    },
+    { name: "Soft Sage",  hex: "#A8BE94", brand: "Dulux",   code: "40GY 62/116",     use: "Cabinetry",        mood: "Fresh, calming"    },
+  ],
+  bathroom: [
+    { name: "Sea Air",    hex: "#C5D8E0", brand: "Dulux",   code: "20BG 70/120",     use: "Walls",            mood: "Clean, spa-like"   },
+    { name: "Crisp White",hex: "#F8F6F2", brand: "Plascon", code: "W1-A1-1",         use: "Ceiling & trims",  mood: "Crisp, clean"      },
+    { name: "Driftwood",  hex: "#D0C0A0", brand: "Plascon", code: "Y5-A2-3",         use: "Accent tiles",     mood: "Natural, warm"     },
+  ],
+  "bathroom-en-suite": [
+    { name: "Fog",        hex: "#D0D8DC", brand: "Dulux",   code: "30BG 67/035",     use: "Walls",            mood: "Serene, fresh"     },
+    { name: "Pure White", hex: "#FAF8F5", brand: "Plascon", code: "W1-A1-0",         use: "Ceiling",          mood: "Light, open"       },
+    { name: "Warm Stone", hex: "#C8B898", brand: "Plascon", code: "Y4-A2-3",         use: "Accent",           mood: "Natural, grounded" },
+  ],
+  bedroom: [
+    { name: "Coastal Mist",   hex: "#A0B8C0", brand: "Dulux",   code: "50BB 31/050", use: "Feature wall",     mood: "Calming, restful"  },
+    { name: "Warm Linen",     hex: "#F0E8D8", brand: "Plascon", code: "Y2-A1-2",     use: "Main walls",       mood: "Soft, inviting"    },
+    { name: "Sage Whisper",   hex: "#C0D0B8", brand: "Plascon", code: "G6-A1-2",     use: "Accent",           mood: "Serene, natural"   },
+  ],
+  lounge: [
+    { name: "Kalahari Dune",  hex: "#D4C4A0", brand: "Plascon", code: "Y6-A2-4",     use: "Walls",            mood: "Warm, earthy"      },
+    { name: "Adobe Dust",     hex: "#C87F62", brand: "Dulux",   code: "10YR 54/168", use: "Feature wall",     mood: "Bold, warm"        },
+    { name: "Cloud White",    hex: "#F2EEE8", brand: "Plascon", code: "W2-A1-1",     use: "Ceiling",          mood: "Light, fresh"      },
+  ],
+  "dining-room": [
+    { name: "Warm White",     hex: "#F5EFE6", brand: "Plascon", code: "Y1-A1-2",     use: "Walls",            mood: "Welcoming, warm"   },
+    { name: "Forest Mist",    hex: "#B8C8B0", brand: "Plascon", code: "G6-A1-3",     use: "Accent wall",      mood: "Organic, fresh"    },
+    { name: "Deep Indigo",    hex: "#4A5A78", brand: "Dulux",   code: "50BB 18/204", use: "Feature wall",     mood: "Dramatic, rich"    },
+  ],
+  garage: [
+    { name: "Chalk White",    hex: "#F0EDE8", brand: "Plascon", code: "W3-A1-1",     use: "Walls",            mood: "Clean, practical"  },
+    { name: "Slate Grey",     hex: "#8A9298", brand: "Dulux",   code: "10B 40/070",  use: "Floor (epoxy)",    mood: "Tough, clean"      },
+    { name: "Canvas",         hex: "#DDD8CC", brand: "Plascon", code: "Y3-A1-3",     use: "Ceiling",          mood: "Neutral, open"     },
+  ],
+  other: [
+    { name: "Classic White",  hex: "#F5F2EC", brand: "Plascon", code: "W1-A1-1",     use: "Walls & ceiling",  mood: "Fresh, versatile"  },
+    { name: "Warm Greige",    hex: "#CFC0AA", brand: "Plascon", code: "Y5-A2-2",     use: "Accent wall",      mood: "Understated, warm" },
+    { name: "Pale Mint",      hex: "#C8D8CC", brand: "Dulux",   code: "30GY 67/055", use: "Accent",           mood: "Cool, calming"     },
+  ],
+};
+
 export function buildFallbackNarrative(
   input: ProjectInput,
   calculated: CalculatedPlan,
-): Pick<RenovationPlan, "room_summary" | "recommended_approach" | "budget_realism" | "whatsapp_brief"> {
+): Pick<RenovationPlan, "room_summary" | "recommended_approach" | "budget_realism" | "whatsapp_brief" | "colour_palette"> {
   const roomLabel = ROOM_TYPE_LABELS[input.room_type] ?? input.room_type;
   const goalsLabel = (input.goals ?? []).map(g => GOAL_LABELS[g]).join(", ");
   const { sqm, approximate } = parseDimensions(input.room_size ?? "");
@@ -657,5 +702,12 @@ A few things I'll need in the quote:
 
 Please also share your earliest start date and how long the job typically takes. Happy to send photos of the space if it helps.`;
 
-  return { room_summary, recommended_approach, budget_realism, whatsapp_brief };
+  const hasPaintGoal = (input.goals ?? []).some(g =>
+    ["paint", "full-makeover", "prepare-rental-sale"].includes(g),
+  );
+  const colour_palette = hasPaintGoal
+    ? (FALLBACK_PALETTES[input.room_type] ?? FALLBACK_PALETTES["other"])
+    : undefined;
+
+  return { room_summary, recommended_approach, budget_realism, whatsapp_brief, colour_palette };
 }

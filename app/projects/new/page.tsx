@@ -167,7 +167,16 @@ function NewProjectForm() {
     : step === 2 ? goals.length > 0
     : true; // Scope Sketch (step 3) and Photos (step 4) are optional
 
+  // Max step the user may jump to (enforces sequential completion)
+  const maxUnlockedStep = useMemo(() => {
+    if (!name.trim() || !location.trim()) return 0;
+    if (!roomSize.trim()) return 1;
+    if (goals.length === 0) return 2;
+    return 4;
+  }, [name, location, roomSize, goals.length]);
+
   const go = (next: number) => {
+    if (next > maxUnlockedStep) return; // can't jump ahead of validation
     setDirection(next > step ? 1 : -1);
     setStep(next);
   };
@@ -241,6 +250,11 @@ function NewProjectForm() {
   };
 
   const submit = async () => {
+    // Safety guard — shouldn't fire without validation, but belt-and-braces
+    if (!name.trim() || !location.trim()) { go(0); return; }
+    if (!roomSize.trim()) { go(1); return; }
+    if (goals.length === 0) { go(2); return; }
+
     setSubmitting(true);
     setLoadingMsg(0);
 
@@ -346,29 +360,33 @@ function NewProjectForm() {
           {/* Step indicators */}
           <div className="border-b border-charcoal/10 bg-white px-5 py-4 sm:px-8">
             <div className="flex items-center justify-between gap-2">
-              {steps.map((label, index) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => go(index)}
-                  className="flex min-w-0 items-center gap-1.5"
-                >
-                  <span
-                    className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
-                      index <= step ? "bg-petrol-dark text-white" : "bg-canvas-dark text-charcoal-light"
-                    }`}
+              {steps.map((label, index) => {
+                const locked = index > maxUnlockedStep;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => go(index)}
+                    disabled={locked}
+                    className={`flex min-w-0 items-center gap-1.5 transition-opacity ${locked ? "cursor-not-allowed opacity-35" : ""}`}
                   >
-                    {index < step ? <Check className="h-3.5 w-3.5" /> : index + 1}
-                  </span>
-                  <span
-                    className={`hidden text-xs font-bold uppercase tracking-[0.10em] sm:block ${
-                      index === step ? "text-petrol-dark" : "text-charcoal-light"
-                    }`}
-                  >
-                    {label}
-                  </span>
-                </button>
-              ))}
+                    <span
+                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold ${
+                        index <= step ? "bg-petrol-dark text-white" : "bg-canvas-dark text-charcoal-light"
+                      }`}
+                    >
+                      {index < step ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                    </span>
+                    <span
+                      className={`hidden text-xs font-bold uppercase tracking-[0.10em] sm:block ${
+                        index === step ? "text-petrol-dark" : "text-charcoal-light"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -485,28 +503,33 @@ function NewProjectForm() {
 
                       {/* Spatial harmony toggle */}
                       <div className="rounded-2xl border border-charcoal/10 bg-white p-5">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
+                        {/* Entire row is the toggle button */}
+                        <button
+                          type="button"
+                          onClick={() => setIncludeFengShui((v) => !v)}
+                          aria-pressed={includeFengShui}
+                          className="flex w-full items-start gap-4 text-left"
+                        >
+                          <div className="min-w-0 flex-1">
                             <p className="font-bold text-charcoal">Add spatial harmony guidance</p>
                             <p className="mt-1 text-sm text-charcoal-light">
                               Feng shui analysis for the room — colours, energy flow, and placement tips that actually make sense.
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => setIncludeFengShui((v) => !v)}
-                            className={`relative mt-0.5 h-7 w-12 shrink-0 rounded-full transition-colors ${
+                          {/* Visual toggle knob — just a span, not a nested button */}
+                          <span
+                            className={`relative mt-0.5 flex h-7 w-12 shrink-0 rounded-full transition-colors ${
                               includeFengShui ? "bg-petrol-dark" : "bg-charcoal/20"
                             }`}
-                            aria-label="Toggle spatial harmony guidance"
+                            aria-hidden="true"
                           >
                             <span
                               className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform ${
                                 includeFengShui ? "translate-x-6" : "translate-x-1"
                               }`}
                             />
-                          </button>
-                        </div>
+                          </span>
+                        </button>
 
                         {/* Compass direction — only when enabled */}
                         {includeFengShui && (
