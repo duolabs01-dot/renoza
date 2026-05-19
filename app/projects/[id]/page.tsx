@@ -210,6 +210,7 @@ export default function ProjectResultPage() {
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
+                aria-label="Delete plan"
                 className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/10 bg-white px-4 py-2 text-sm font-semibold text-charcoal-light hover:text-red-600"
               >
                 <Trash2 className="h-4 w-4" />
@@ -520,15 +521,17 @@ export default function ProjectResultPage() {
         </div>
       </div>
 
-      {/* ── Sticky mobile WhatsApp copy button ── */}
+      {/* ── Sticky mobile WhatsApp send button ── */}
       <div className="no-print fixed bottom-6 left-0 right-0 z-40 flex justify-center lg:hidden">
-        <button
-          onClick={() => navigator.clipboard.writeText(plan.whatsapp_brief)}
-          className="inline-flex items-center gap-2 rounded-full bg-petrol-dark px-6 py-3.5 text-sm font-bold text-white shadow-2xl shadow-petrol-dark/35"
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(plan.whatsapp_brief)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3.5 text-sm font-bold text-white shadow-2xl shadow-petrol-dark/35"
         >
           <MessageSquare className="h-4 w-4" />
-          Copy WhatsApp Brief
-        </button>
+          Send on WhatsApp
+        </a>
       </div>
 
       {/* ── Delete confirm dialog ── */}

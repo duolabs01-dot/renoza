@@ -727,7 +727,7 @@ function NewProjectForm() {
                             className="group relative aspect-square overflow-hidden rounded-2xl bg-canvas-dark"
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={photo.previewUrl} alt={photo.name} className="h-full w-full object-cover" />
+                            <img src={photo.previewUrl} alt={photo.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                             <button
                               type="button"
                               onClick={() => removePhoto(photo.id)}

@@ -1,7 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import Nav from "@/components/Nav";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf8f5" },
+    { media: "(prefers-color-scheme: dark)",  color: "#1e5541" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -20,7 +29,15 @@ export const metadata: Metadata = {
   title: "Renoza — Know what your renovation should cost",
   description:
     "Built for South African homeowners. Get a Rand range, spot the red flags, and send any contractor a WhatsApp brief that puts you in charge — before anyone asks for a deposit.",
-  icons: { icon: "/favicon.svg" },
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Renoza",
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: "Know what your renovation should cost. Before the contractor does.",
     description:
@@ -44,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+    <html lang="en-ZA" className={`${playfair.variable} ${inter.variable}`}>
       <body>
         <Nav />
         {children}

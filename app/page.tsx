@@ -29,6 +29,26 @@ export default function HomePage() {
 
   return (
     <div className="overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Renoza",
+            description:
+              "AI renovation planner for South African homeowners. Get a Rand range, risk list, and a WhatsApp brief that puts you in charge — before anyone asks for a deposit.",
+            url: "https://renoza.vercel.app",
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Any",
+            offers: { "@type": "Offer", price: "0", priceCurrency: "ZAR" },
+            audience: {
+              "@type": "Audience",
+              geographicArea: { "@type": "Country", name: "South Africa" },
+            },
+          }),
+        }}
+      />
       <section className="hero-image relative min-h-[calc(100vh-4rem)] overflow-hidden">
         <motion.div style={{ y: heroY }} className="absolute inset-x-0 -top-24 bottom-0" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-petrol-dark/28 to-petrol-dark/70" />

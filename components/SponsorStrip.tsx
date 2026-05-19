@@ -9,6 +9,8 @@ function BrandIcon({ brand }: { brand: SponsorBrand }) {
       <img
         src={brand.logo}
         alt={brand.name}
+        loading="lazy"
+        decoding="async"
         style={{ height: 24, width: "auto", maxWidth: 56, objectFit: "contain", flexShrink: 0 }}
       />
     );
